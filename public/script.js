@@ -1,8 +1,7 @@
 import * as THREE from 'three'
 import { PointerLockControls } from './jsm/controls/PointerLockControls.js';
-import {GLTFLoader} from './jsm/loaders/GLTFLoader.js';
-import { clone } from './jsm/utils/SkeletonUtils.js';
-
+import { OBJLoader } from './jsm/loaders/OBJLoader.js';
+import { MTLLoader } from './jsm/loaders/MTLLoader.js';
 
 
 const canvas = document.getElementById('canvas');
@@ -59,11 +58,40 @@ const menu = document.getElementById("menu");
 //     });
 // }
 
-const objLoader = new THREE.ObjectLoader();
+const objLoader = new OBJLoader();
+const mtlLoader = new MTLLoader();
+
+mtlLoader.setPath('/texture/');
 objLoader.setPath('/models/');
-objLoader.load('tinker.obj', (object) => {
-    scene.add(object);
-})
+
+mtlLoader.load('r2d2.mtl', function (materials) {
+
+    materials.preload();
+
+    objLoader.setMaterials(materials);
+    objLoader.load('r2d2.obj', function (object) {
+
+        object.rotation.x -= Math.PI / 2;
+        scene.add(object);
+
+    });
+
+});
+
+// objLoader.load('r2d2.obj', (object) => {
+
+//         object.rotation.x -= Math.PI / 2;
+//         scene.add(object);
+//     }
+// )
+
+// mtlLoader.load('home.mtl', function (materials) {
+//     materials.preload();
+//     objLoader.setMaterials(materials);
+//     objLoader.load('home.obj', function (object) {
+//         scene.add(object);
+//     });
+// });
 
 const geometry = new THREE.SphereGeometry(300, 30, 30);
 const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
@@ -73,7 +101,7 @@ const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true 
 // }
 
 const mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
+// scene.add(mesh);
 
 const usedKeys = {}; // You could also use an array
 onkeydown = onkeyup = function (e) {
@@ -137,7 +165,7 @@ function loop() {
         }
     }
 
-    mesh.rotation.y += 0.01;
+    // mesh.rotation.y += 0.01;
 
     renderer.render(scene, camera);
     requestAnimationFrame(function () { loop(); });
