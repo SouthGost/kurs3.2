@@ -1,7 +1,19 @@
 import * as THREE from 'three'
-import { PointerLockControls } from './jsm/controls/PointerLockControls.js';
-import { OBJLoader } from './jsm/loaders/OBJLoader.js';
-import { MTLLoader } from './jsm/loaders/MTLLoader.js';
+import { OrbitControls } from './jsm/controls/OrbitControls.js';
+import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+import * as SkeletonUtils from './jsm/utils/SkeletonUtils.js';
+import Stats from './jsm/libs/stats.module.js'
+import old_hoist from './js/objects3d/hoist.js'
+
+function random(a, b) {
+    if (a > b) {
+        throw new Error('a > b');
+    }
+    if (a == b) {
+        return a;
+    }
+    return Math.round(Math.random() * (b - a) + a);
+}
 
 
 const canvas = document.getElementById('canvas');
@@ -12,121 +24,190 @@ canvas.setAttribute('width', width);
 canvas.setAttribute('height', height);
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
-renderer.setClearColor(0x000000);
+renderer.setClearColor(0x00FFFF);
 
 const scene = new THREE.Scene();
 
 let camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000)
-camera.position.set(0, 0, 1000);
+camera.position.set(0, 0, 100);
+// camera.rotation.set(-0.51,0,0.12);
 
-const light = new THREE.AmbientLight(0xffffff);
+const light = new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1);
 scene.add(light);
 
 
+// const startButton = document.getElementById("menu_start_button");
+// const menuLoading = document.getElementById("menu_loading");
+// const menu = document.getElementById("menu");
 
-
-const startButton = document.getElementById("menu_start_button");
-const menuLoading = document.getElementById("menu_loading");
-const menu = document.getElementById("menu");
-// const models = {
-//     flamingo: {
-//         url: '/models/flamingo.glb'
-//     },
-// };
-
-// function init() {
-//     menuLoading.style.display = "none";
-//     startButton.style.display = "block";
-
-//     Object.values(models).forEach((model, index) => {
-//         const clonedScene = clone(model.gltf.scene);
-//         const root = new THREE.Object3D();
-//         root.add(clonedScene);
-//         scene.add(root);
-//         root.position.x = (index -3) * 3;
-//     });
-// }
-
-// const manager = new THREE.LoadingManager();
-// manager.onLoad = init;
-
-
-// const gltfLoader = new GLTFLoader(manager);
-// for (const model of Object.values(models)) {
-//     gltfLoader.load(model.url, (gltf) => {
-//         model.gltf = gltf;
-//     });
-// }
-
-const objLoader = new OBJLoader();
-const mtlLoader = new MTLLoader();
-
-mtlLoader.setPath('/texture/');
-objLoader.setPath('/models/');
-
-mtlLoader.load('r2d2.mtl', function (materials) {
-
-    materials.preload();
-
-    objLoader.setMaterials(materials);
-    objLoader.load('r2d2.obj', function (object) {
-
-        object.rotation.x -= Math.PI / 2;
-        scene.add(object);
-
+function dumpObject(obj, lines = [], isLast = true, prefix = '') {
+    const localPrefix = isLast ? '└─' : '├─';
+    lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
+    const newPrefix = prefix + (isLast ? '  ' : '│ ');
+    const lastNdx = obj.children.length - 1;
+    obj.children.forEach((child, ndx) => {
+        const isLast = ndx === lastNdx;
+        dumpObject(child, lines, isLast, newPrefix);
     });
+    return lines;
+}
 
+let hoist;
+const mixers = [];
+
+function getGLTFAnimations(obj) {
+
+    console.log("anime", obj.animations)
+    console.log("deti", obj.children)
+    for (const animation_ of obj.animations) {
+        const mixer = new THREE.AnimationMixer(obj);
+        const action = mixer.clipAction(animation_);
+        action.play()
+        mixers.push(mixer);
+    }
+    obj.children.forEach((elem) => getGLTFAnimations(elem))
+}
+
+function init() {
+    console.log("hoist Init", hoist)
+    getGLTFAnimations(hoist)
+
+    
+}
+
+const manager = new THREE.LoadingManager();
+manager.onLoad = init;
+const gltfLoader = new GLTFLoader(manager);
+// const url = '/models/miner/scene.gltf';
+// const location = [
+//     {
+//         name: "Main",
+//         url: "Galerie.glb"
+//     }
+// ]
+gltfLoader.load(`/models/hoist_full/hoist.glb`, (gltf) => {
+    console.log('gltf', gltf)
+    hoist = gltf.scene;
+    hoist.name = 'hoist'
+    
+    const rotationZ_KF = new THREE.VectorKeyframeTrack('hoist.position', times, values2);
+
+    const tracks = [rotationZ_KF];
+    const rotationZ_clip = new THREE.AnimationClip('qwe', -1, tracks);
+    const mixer = new THREE.AnimationMixer(hoist);
+    console.log('load log', values2)
+    mixers.push(mixer);
+    const action = mixer.clipAction(rotationZ_clip);
+    // action.reset();
+    // action.play();
+
+    scene.add(hoist);
+    console.log(dumpObject(hoist).join('\n'));
 });
 
-// objLoader.load('r2d2.obj', (object) => {
-
-//         object.rotation.x -= Math.PI / 2;
-//         scene.add(object);
-//     }
-// )
-
-// mtlLoader.load('home.mtl', function (materials) {
-//     materials.preload();
-//     objLoader.setMaterials(materials);
-//     objLoader.load('home.obj', function (object) {
-//         scene.add(object);
-//     });
-// });
+// const blocks = [
+//     {
+//         name: "Down drum",
+//         url: "down_drum.glb"
+//     },
+//     {
+//         name: "Upper drum",
+//         url: "upper_drum.glb"
+//     },
+//     {
+//         name: "Hoist drumless",
+//         url: "hoist_drumless.glb"
+//     },
+// ];
 
 const geometry = new THREE.SphereGeometry(300, 30, 30);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+const material = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
 
-// for(let i = 0; i < geometry.faces.length; i++) {
-//     geometry.faces[i].color.setRGB(Math.random(),Math.random(),Math.random());
-// }
 
 const mesh = new THREE.Mesh(geometry, material);
+// const euler = new THREE.Euler(0, 0, 0, 'XYZ');
+// const quaternion = new THREE.Quaternion();
+// quaternion.setFromEuler(euler);
+// mesh.applyQuaternion(quaternion);
+
+const times = [0, 1, 2, 3, 4];
+
+const values2 = [
+    0, 0, 0,
+    -50, 0, 0,
+    -100, 0, 0,
+    -50, 0, 0,
+    0, 0, 0
+];
+
+// const values = [
+//     0, 0, 1, 0,
+//     0, 0, 1, 2 * Math.PI,
+//     0, 0, 1, 4 * Math.PI,
+//     0, 0, 1, 6 * Math.PI
+// ];
+// const values1 = [
+//     0, 0, 1, 0, //начало 1
+//     0, 0, 1, Math.PI / 2,
+//     0, 0, 1, Math.PI,
+//     0, 0, 1, 3 * Math.PI / 2,
+//     0, 0, 1, 2 * Math.PI
+// ];
+// // hoist.quaternion.set(0, 0, 1, 2 * Math.PI)
+
+// const timesO = [0, 3, 6];
+// const valuesO = [0, 0, 0, 2, 2, 2, 0, 0, 0];
+
+const clock = new THREE.Clock();
+// const rotationZ_KF = new THREE.QuaternionKeyframeTrack(
+//     '.quaternion',
+//     times,
+//     values1,
+//     1488
+//     // new THREE.LinearInterpolant(
+//     //     new Float32Array(2),
+//     //     new Float32Array(2),
+//     //     1,
+//     //     new Float32Array(1)
+//     // )
+// );
+// console.log(rotationZ_KF.getInterpolation())
+// const rotationZ_KF = new THREE.VectorKeyframeTrack('.position', times, values2);
+
+// const tracks = [rotationZ_KF];
+// const rotationZ_clip = new THREE.AnimationClip('qwe', -1, tracks);
+// const mixer = new THREE.AnimationMixer(hoist);
+// mixers.push(mixer);
+// const action = mixer.clipAction(rotationZ_clip);
+// // // action.reset();
+// action.play();
 // scene.add(mesh);
 
-const usedKeys = {}; // You could also use an array
-onkeydown = onkeyup = function (e) {
-    // console.log(e.keyCode)
-    e = e || event; // to deal with IE
-    usedKeys[e.keyCode] = e.type == 'keydown';
-}
+// hoist.addEventListener('init', () => {
+//     for (const child_ of hoist.children) {
+//         if(child_.animations.length > 0){
+//             for(const animation_ of child_.animations){
+//                 const mixer = new THREE.AnimationMixer(child_);
+//                 mixers.push(mixer);
+//                 const action = mixer.clipAction(animation_);
+//                 action.play()
+//             }
+//         }
+//     }   
+//     console.log(mixers)
+// })
+
+// scene.add(hoist);
 
 
+// const usedKeys = {};
+// onkeydown = onkeyup = function (e) {
+//     // console.log(e.keyCode)
+//     e = e || event;
+//     usedKeys[e.keyCode] = e.type == 'keydown';
+// }
 
-const controls = new PointerLockControls(camera, document.body);
-
-startButton.onclick = () => {
-    controls.lock();
-}
-
-controls.addEventListener('lock', function () {
-
-    menu.style.visibility = 'hidden';
-});
-
-controls.addEventListener('unlock', function () {
-
-    menu.style.visibility = 'visible';
-});
+const controls = new OrbitControls(camera, renderer.domElement);
 
 window.addEventListener('resize', function (event) {
     width = window.innerWidth;
@@ -139,33 +220,24 @@ window.addEventListener('resize', function (event) {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
 });
+let delta = clock.getDelta();
 
 function loop() {
-    if (controls.isLocked) {
-        let forward = 10;
-        let sideways = 7;
-        if (usedKeys[16]) {
-            forward *= 2;
-            sideways *= 2;
-        }
-        // mesh.rotation.y += 0.01;
-        if (usedKeys[87]) {
-            controls.moveForward(forward);
-        }
-        if (usedKeys[83]) {
-            controls.moveForward(-forward);
-        }
-        if (usedKeys[65]) {
-            controls.moveRight(-sideways)
-            // camera.position.x -= sideways;
-        }
-        if (usedKeys[68]) {
-            controls.moveRight(sideways)
-            // camera.position.x += sideways;
-        }
+    // console.log("кадер")
+
+    delta = clock.getDelta();
+    // console.log(mixer)
+    for (const mixer of mixers) {
+        mixer.update(delta);
     }
 
-    // mesh.rotation.y += 0.01;
+
+    // if(blocks[0].scene){
+    //     blocks[0].scene.rotation.z += 0.1; 
+    // }
+    // if(blocks[1].scene){
+    //     blocks[1].scene.rotation.z += 0.1; 
+    // }
 
     renderer.render(scene, camera);
     requestAnimationFrame(function () { loop(); });
