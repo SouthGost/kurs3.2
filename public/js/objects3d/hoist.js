@@ -24,8 +24,8 @@ const up_drum_rotation_KF = new THREE.QuaternionKeyframeTrack(
     times,
     values1
 );
-const down_drum_rotation_animation = new THREE.AnimationClip('down_drum_rotation_animation', -1, [down_drum_rotation_KF]);
-const up_drum_rotation_animation = new THREE.AnimationClip('up_drum_rotation_animation', -1, [up_drum_rotation_KF]);
+const down_drum_rotation_animation = new THREE.AnimationClip('down_drum.rotation_animation', -1, [down_drum_rotation_KF]);
+const up_drum_rotation_animation = new THREE.AnimationClip('up_drum.rotation_animation', -1, [up_drum_rotation_KF]);
 
 function init() {
     function exportGLTF(input) {
@@ -99,7 +99,7 @@ function init() {
     }
 
     // exportGLTF(hoist)
-    console.log("старый", hoist)
+    // console.log("старый", hoist)
 }
 
 manager.onLoad = init;
@@ -126,7 +126,7 @@ const blocks = [
 
 gltfLoader.load(`/models/hoist/${blocks[0].url}`, (gltf) => {
     const root = gltf.scene;
-    console.log("drum",root)
+    // console.log("drum",root)
 
     root.name = blocks[0].name;
     blocks[0].scene = root;

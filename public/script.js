@@ -55,24 +55,8 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
 let hoist;
 const mixers = [];
 
-function getGLTFAnimations(obj) {
-
-    console.log("anime", obj.animations)
-    console.log("deti", obj.children)
-    for (const animation_ of obj.animations) {
-        const mixer = new THREE.AnimationMixer(obj);
-        const action = mixer.clipAction(animation_);
-        action.play()
-        mixers.push(mixer);
-    }
-    obj.children.forEach((elem) => getGLTFAnimations(elem))
-}
-
 function init() {
-    console.log("hoist Init", hoist)
-    getGLTFAnimations(hoist)
 
-    
 }
 
 const manager = new THREE.LoadingManager();
@@ -86,23 +70,19 @@ const gltfLoader = new GLTFLoader(manager);
 //     }
 // ]
 gltfLoader.load(`/models/hoist_full/hoist.glb`, (gltf) => {
-    console.log('gltf', gltf)
     hoist = gltf.scene;
-    hoist.name = 'hoist'
-    
-    const rotationZ_KF = new THREE.VectorKeyframeTrack('hoist.position', times, values2);
-
-    const tracks = [rotationZ_KF];
-    const rotationZ_clip = new THREE.AnimationClip('qwe', -1, tracks);
-    const mixer = new THREE.AnimationMixer(hoist);
-    console.log('load log', values2)
-    mixers.push(mixer);
-    const action = mixer.clipAction(rotationZ_clip);
-    // action.reset();
-    // action.play();
+    // hoist.name = 'hoist'
+    for (const animation_ of gltf.animations) {
+        const objectName = animation_.name.split(".")[0];
+        const animatedObject = hoist.getObjectByName(objectName)
+        const mixer = new THREE.AnimationMixer(animatedObject);
+        mixers.push(mixer);
+        const action = mixer.clipAction(animation_);
+        action.play();
+    }
 
     scene.add(hoist);
-    console.log(dumpObject(hoist).join('\n'));
+    // console.log(dumpObject(hoist).join('\n'));
 });
 
 // const blocks = [
@@ -130,15 +110,15 @@ const mesh = new THREE.Mesh(geometry, material);
 // quaternion.setFromEuler(euler);
 // mesh.applyQuaternion(quaternion);
 
-const times = [0, 1, 2, 3, 4];
+// const times = [0, 1, 2, 3, 4];
 
-const values2 = [
-    0, 0, 0,
-    -50, 0, 0,
-    -100, 0, 0,
-    -50, 0, 0,
-    0, 0, 0
-];
+// const values2 = [
+//     0, 0, 0,
+//     -50, 0, 0,
+//     -100, 0, 0,
+//     -50, 0, 0,
+//     0, 0, 0
+// ];
 
 // const values = [
 //     0, 0, 1, 0,
@@ -171,33 +151,6 @@ const clock = new THREE.Clock();
 //     //     new Float32Array(1)
 //     // )
 // );
-// console.log(rotationZ_KF.getInterpolation())
-// const rotationZ_KF = new THREE.VectorKeyframeTrack('.position', times, values2);
-
-// const tracks = [rotationZ_KF];
-// const rotationZ_clip = new THREE.AnimationClip('qwe', -1, tracks);
-// const mixer = new THREE.AnimationMixer(hoist);
-// mixers.push(mixer);
-// const action = mixer.clipAction(rotationZ_clip);
-// // // action.reset();
-// action.play();
-// scene.add(mesh);
-
-// hoist.addEventListener('init', () => {
-//     for (const child_ of hoist.children) {
-//         if(child_.animations.length > 0){
-//             for(const animation_ of child_.animations){
-//                 const mixer = new THREE.AnimationMixer(child_);
-//                 mixers.push(mixer);
-//                 const action = mixer.clipAction(animation_);
-//                 action.play()
-//             }
-//         }
-//     }   
-//     console.log(mixers)
-// })
-
-// scene.add(hoist);
 
 
 // const usedKeys = {};
@@ -226,18 +179,9 @@ function loop() {
     // console.log("кадер")
 
     delta = clock.getDelta();
-    // console.log(mixer)
     for (const mixer of mixers) {
         mixer.update(delta);
     }
-
-
-    // if(blocks[0].scene){
-    //     blocks[0].scene.rotation.z += 0.1; 
-    // }
-    // if(blocks[1].scene){
-    //     blocks[1].scene.rotation.z += 0.1; 
-    // }
 
     renderer.render(scene, camera);
     requestAnimationFrame(function () { loop(); });
