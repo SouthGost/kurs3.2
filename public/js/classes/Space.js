@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
 // import { GLTFLoader } from '../simple.js';
 
-class Space {
+export default class Space {
 
 
     resize = () => {
@@ -30,9 +30,9 @@ class Space {
         this.height = window.innerHeight;
         this.canvas.setAttribute('width', this.width + "");
         this.canvas.setAttribute('height', this.height + "");
-        this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
+        this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true });
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 5000)
+        this.camera = new THREE.PerspectiveCamera(90, this.width / this.height, 1, 1000)
         this.manager = new THREE.LoadingManager();
         this.gltfLoader = new GLTFLoader(this.manager);
         this.isShow = false;
@@ -48,5 +48,3 @@ class Space {
 
     // продумать рендер лууп
 }
-
-export default Space;

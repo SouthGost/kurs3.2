@@ -23,10 +23,36 @@ let height = window.innerHeight;
 canvas.setAttribute('width', width);
 canvas.setAttribute('height', height);
 
-const renderer = new THREE.WebGLRenderer({ canvas: canvas });
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setClearColor(0x00FFFF);
 
 const scene = new THREE.Scene();
+
+// const spotLight = new THREE.SpotLight( 0xffffff );
+// spotLight.angle = Math.PI / 5;
+// spotLight.penumbra = 0.2;
+// spotLight.position.set( 2, 3, 3 );
+// spotLight.castShadow = true;
+// spotLight.shadow.camera.near = 3;
+// spotLight.shadow.camera.far = 10;
+// spotLight.shadow.mapSize.width = 1024;
+// spotLight.shadow.mapSize.height = 1024;
+// scene.add( spotLight );
+
+// const dirLight = new THREE.DirectionalLight( 0x55505a, 1 );
+// dirLight.position.set( 0, 100, 40 );
+// dirLight.castShadow = true;
+// dirLight.shadow.camera.near = 1;
+// dirLight.shadow.camera.far = 10;
+
+// dirLight.shadow.camera.right = 1;
+// dirLight.shadow.camera.left = - 1;
+// dirLight.shadow.camera.top	= 1;
+// dirLight.shadow.camera.bottom = - 1;
+
+// dirLight.shadow.mapSize.width = 1024;
+// dirLight.shadow.mapSize.height = 1024;
+// scene.add( dirLight );
 
 let camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000)
 camera.position.set(0, 0, 100);

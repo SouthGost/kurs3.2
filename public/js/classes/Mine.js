@@ -1,19 +1,9 @@
 import Space from "./Space.js"
+import MineMatrix from "./MineMatrix.js"
 import * as THREE from 'three'
 import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
-import * as SkeletonUtils from '../../jsm/utils/SkeletonUtils.js';
 
-function random(a, b) {
-    if (a > b) {
-        throw new Error('a > b');
-    }
-    if (a == b) {
-        return a;
-    }
-    return Math.round(Math.random() * (b - a) + a);
-}
-
-class Mine extends Space {
+export default class Mine extends Space {
 
     constructor(canvas_name) {
         super(canvas_name)
@@ -22,7 +12,7 @@ class Mine extends Space {
         this.light = new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1);
         this.scene.add(this.light);
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        
+        this.isInited = false;
         this.manager.onLoad = this.init;
 
         this.blocks = [
@@ -47,7 +37,7 @@ class Mine extends Space {
                 // scene: undefined,
             }
         ];
-        
+
         for (let i = 0; i < this.blocks.length; i++) {
             this.gltfLoader.load(`/models/block/${this.blocks[i].url}`, (gltf) => {
                 this.blocks[i].scene = gltf.scene;
@@ -60,7 +50,7 @@ class Mine extends Space {
         });
         this.gltfLoader.load(`/models/miner/scene.gltf`, (gltf) => {
             const root = gltf.scene;
-            root.position.set(0,0,4)
+            root.position.set(0, 0, 4)
             this.scene.add(root);
         });
     }
@@ -68,34 +58,44 @@ class Mine extends Space {
     loop = () => {
         this.renderer.render(this.scene, this.camera);
 
-        if(this.isShow){
-            requestAnimationFrame( () => { this.loop(); });
+        if (this.isShow) {
+            requestAnimationFrame(() => { this.loop(); });
         }
     }
-    
+
     init = () => {
         console.log("Загрузил");
-        this.matrica = new Array(4);
-        for (let i = 0; i < this.matrica.length; i++) {
-            this.matrica[i] = new Array(4);
-            for (let j = 0; j < this.matrica[i].length; j++) {
-                this.matrica[i][j] = new Array(2);
-                for (let k = 0; k < this.matrica[i][j].length; k++) {
-                    const root = SkeletonUtils.clone(this.blocks[random(0, this.blocks.length - 1)].scene);
-                    root.position.set(i * 2, j * 2, k * 2);
-                    this.matrica[i][j][k] = root;
-                    this.scene.add(root);
-                }
-            }
+        this.mineMatrix = new MineMatrix(this.scene, this.blocks);
+        // this.matrica = new Array(4);
+        // for (let i = 0; i < this.matrica.length; i++) {
+        //     this.matrica[i] = new Array(4);
+        //     for (let j = 0; j < this.matrica[i].length; j++) {
+        //         this.matrica[i][j] = new Array(2);
+        //         for (let k = 0; k < this.matrica[i][j].length; k++) {
+        //             const root = SkeletonUtils.clone(this.blocks[random(0, this.blocks.length - 1)].scene);
+        //             root.position.set(i * 2, j * 2, k * 2);
+        //             this.matrica[i][j][k] = root;
+        //             this.scene.add(root);
+        //         }
+        //     }
 
-        }
+        // }
+        this.show();
+        this.work();
     }
+
+    work = () => {
+
+        this.mineMatrix.work();
+    }
+
+
+
+
+
 
 
     // init() {
 
-        // }
+    // }
 }
-
-
-export default Mine;
