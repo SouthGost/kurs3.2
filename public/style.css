@@ -28,6 +28,31 @@ body, html{
     color: white;
 }
 
+
+#info_container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.37);
+    border-bottom: 1px solid black;
+    z-index: 1;
+}
+
+#info_content{
+    padding-left: 50px;
+    color: white;
+}
+
+#info_content p{
+    padding-right: 5px; 
+    user-select: none;   
+}
+
+.row{
+    display: flex;
+}
+
 #canvas{
     position: absolute;
     top: 0;

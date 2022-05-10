@@ -39,20 +39,20 @@ const scene = new THREE.Scene();
 // spotLight.shadow.mapSize.height = 1024;
 // scene.add( spotLight );
 
-// const dirLight = new THREE.DirectionalLight( 0x55505a, 1 );
-// dirLight.position.set( 0, 100, 40 );
-// dirLight.castShadow = true;
-// dirLight.shadow.camera.near = 1;
-// dirLight.shadow.camera.far = 10;
+const dirLight = new THREE.DirectionalLight( 0x55505a, 1 );
+dirLight.position.set( 0, 100, 40 );
+dirLight.castShadow = true;
+dirLight.shadow.camera.near = 1;
+dirLight.shadow.camera.far = 10;
 
-// dirLight.shadow.camera.right = 1;
-// dirLight.shadow.camera.left = - 1;
-// dirLight.shadow.camera.top	= 1;
-// dirLight.shadow.camera.bottom = - 1;
+dirLight.shadow.camera.right = 1;
+dirLight.shadow.camera.left = - 1;
+dirLight.shadow.camera.top	= 1;
+dirLight.shadow.camera.bottom = - 1;
 
-// dirLight.shadow.mapSize.width = 1024;
-// dirLight.shadow.mapSize.height = 1024;
-// scene.add( dirLight );
+dirLight.shadow.mapSize.width = 1024;
+dirLight.shadow.mapSize.height = 1024;
+scene.add( dirLight );
 
 let camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000)
 camera.position.set(0, 0, 100);
