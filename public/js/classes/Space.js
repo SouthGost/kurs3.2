@@ -1,11 +1,10 @@
-import * as THREE from 'three'
+import * as THREE from 'three';
 import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
-// import { GLTFLoader } from '../simple.js';
+import Mine from "./Mine.js";
+import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
 
 export default class Space {
-
-
-    resize = () => {
+    resize() {
         this.width = window.innerWidth;
         this.height = window.innerHeight;
 
@@ -18,7 +17,6 @@ export default class Space {
     }
 
     show() {
-        this.isShow = true;
         this.loop()
     }
 
@@ -33,15 +31,32 @@ export default class Space {
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true });
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(90, this.width / this.height, 1, 1000)
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+
+        const init = () => {
+            console.log("init space");
+            this.show()
+            this.locations[0].visible(this.renderer, this.scene, this.camera);
+        }
+
         this.manager = new THREE.LoadingManager();
+
+        this.manager.onLoad = init;
+        
         this.gltfLoader = new GLTFLoader(this.manager);
-        this.isShow = false;
-        this.light = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 1);
+        this.locations = [
+            new Mine(this.gltfLoader),
+        ];
+
         window.addEventListener('resize', this.resize);
     }
-    
-    loop = () => { }
-    
+
+    loop() {
+        this.renderer.render(this.scene, this.camera);
+
+        requestAnimationFrame(() => { this.loop(); });
+    }
+
     //renderer.setClearColor(0x20B2AA);  this.
     //camera.position.set(10, 10, 10);
     //scene.add(light);

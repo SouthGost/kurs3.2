@@ -24,20 +24,12 @@ export default class Resource{
         infoContent.append(rowDiv);
     }
 
-    inc(){
-        changeCount(1);
-    }
-
     changeCount(number){
         if(this.count + number < 0){
             throw new Error("Не достаточно ресурсов");
         }
         this.count+= number;
         this.resourceNumberParagraph.innerText = this.count;
-    }
-
-    setSceene(gltf){
-        this.scene = gltf.scene;
     }
 
     getObject3D(){

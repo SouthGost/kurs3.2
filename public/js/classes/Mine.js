@@ -2,49 +2,47 @@ import Space from "./Space.js"
 import MineMatrix from "./MineMatrix.js"
 import ResourceController from "./ResourceController.js"
 import * as THREE from 'three'
-import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
 
-export default class Mine extends Space {
 
-    constructor(canvas_name) {
-        super(canvas_name)
-        this.renderer.setClearColor(0x000000);
-        this.camera.position.set(10, 10, 10);
-        this.light = new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1);
-        this.scene.add(this.light);
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.isInited = false;
-        this.manager.onLoad = this.init;
+export default class Mine {
 
-        this.resourceController = new ResourceController(this.gltfLoader);
-        this.gltfLoader.load(`/models/location/Galerie.glb`, (gltf) => {
+    constructor(gltfLoader) {
+    
+        this.resourceController = new ResourceController(gltfLoader);
+        this.mineMatrix = new MineMatrix( this.resourceController);
+        this.objects3d = [
+            new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1),
+        ];
+        gltfLoader.load(`/models/location/Galerie.glb`, (gltf) => {
             const root = gltf.scene;
             root.position.set(6, -2, 26);
-            this.scene.add(root);
+            this.objects3d.push(root);
+            // this.scene.add(root);
         });
-        this.gltfLoader.load(`/models/miner/scene.gltf`, (gltf) => {
+        gltfLoader.load(`/models/miner/scene.gltf`, (gltf) => {
             const root = gltf.scene;
-            root.position.set(0, 0, 4)
-            this.scene.add(root);
+            root.position.set(0, 0, 4);
+            this.objects3d.push(root);
+            // this.scene.add(root);
         });
     }
 
-    loop = () => {
-        this.renderer.render(this.scene, this.camera);
+    // init(){
 
-        if (this.isShow) {
-            requestAnimationFrame(() => { this.loop(); });
+    // }
+
+    visible(renderer, scene, camera) {
+        renderer.setClearColor(0x000000);
+        camera.position.set(10, 10, 10);
+        camera.lookAt(0,0,0);
+        for (const object_ of this.objects3d) {
+            scene.add(object_);
         }
-    }
-
-    init = () => {
-        console.log("Загрузил");
-        this.mineMatrix = new MineMatrix(this.scene, this.resourceController);
-        this.show();
+        this.mineMatrix.show(scene);
         this.work();
     }
 
-    work = () => {
+    work(){
         this.mineMatrix.work();
     }
 

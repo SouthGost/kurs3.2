@@ -1,6 +1,6 @@
-import Mine from './classes/Mine.js'
+import Space from './classes/Space.js'
 
-const mine = new Mine('canvas');
+const space = new Space('canvas');
 
 // mine.show();
 // mine.work();

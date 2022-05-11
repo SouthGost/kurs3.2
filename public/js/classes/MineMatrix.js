@@ -2,47 +2,80 @@ import * as SkeletonUtils from '../../jsm/utils/SkeletonUtils.js';
 
 
 
-export default class MineMatrix {
+export default class MinematrixResources {
 
-    work = () => {
-        this.removeFromScene(0, this.matrix[0].length - 1);
+
+
+    constructor(resourceController) {
+        this.resourceController = resourceController;
+        this.scene = undefined;
+        this.matrixResources = new Array(4);
+        this.matrixObjects3D = new Array(4);
+        for (let i = 0; i < this.matrixResources.length; i++) {
+            this.matrixResources[i] = new Array(4);
+            this.matrixObjects3D[i] = new Array(4);
+            for (let j = 0; j < this.matrixResources[i].length; j++) {
+                this.matrixResources[i][j] = new Array(2);
+                this.matrixObjects3D[i][j] = new Array(2);
+            }
+
+        }
+        for (let k = 0; k < this.matrixResources[0][0].length; k++) {
+            this.ceateLevelOfBlocks(k);
+        }
     }
 
-    ceateLevelOfBlocks = (k) => {
-        for (let i = 0; i < this.matrix.length; i++) {
-            for (let j = 0; j < this.matrix[i].length; j++) {
-                const root = this.resourceController.getRandomObject3D();
-                root.position.set(i * 2, j * 2, k * 2);
-                this.matrix[i][j][k] = root;
-                this.scene.add(root);
+    work(){
+        this.getResource(0, this.matrixResources[0].length - 1);
+    }
+
+    ceateLevelOfBlocks(k){
+        for (let i = 0; i < this.matrixResources.length; i++) {
+            for (let j = 0; j < this.matrixResources[i].length; j++) {
+                const resource = this.resourceController.getRandomResource();
+                this.matrixResources[i][j][k] = resource;
+
+                if(this.scene != undefined){
+                    const object3D = resource.getObject3D();
+                    this.matrixObjects3D[i][j][k] = object3D;
+                    object3D.position.set(i * 2, j * 2, k * 2);
+                    this.scene.add(object3D);
+                }
             }
         }
     }
 
-    moveBlocksForvard = () => {
-        for (let i = 0; i < this.matrix.length; i++) {
-            for (let j = 0; j < this.matrix[i].length; j++) {
-                this.matrix[i][j][1] = this.matrix[i][j][0];
-                this.matrix[i][j][1].position.z+=2;
+    moveBlocksForvard(){
+        for (let i = 0; i < this.matrixResources.length; i++) {
+            for (let j = 0; j < this.matrixResources[i].length; j++) {
+                this.matrixResources[i][j][1] = this.matrixResources[i][j][0];
+                if(this.scene != undefined){
+                    this.matrixObjects3D[i][j][1] = this.matrixObjects3D[i][j][0];
+                    this.matrixObjects3D[i][j][1].position.z+=2;
+                }
             }
         }
         this.ceateLevelOfBlocks(0);
     }
 
-    removeFromScene = (i, j) => {
+    getResource(i, j){
         setTimeout(() => {
-            const resource = this.matrix[i][j][1];
-            this.scene.remove(this.matrix[i][j][1]);
-            this.resourceController.changeResourceCount(resource.name, 1);
-            this.matrix[i][j][1] = undefined;
+            const resource = this.matrixResources[i][j][1];
+            if(this.scene != undefined){
+                this.scene.remove(this.matrixObjects3D[i][j][1]);
+                this.matrixObjects3D[i][j][1] = undefined;
+            }
+            resource.changeCount(1)
+            // this.resourceController.changeResourceCount(resource.name, 1);
+            this.matrixResources[i][j][1] = undefined;
             // console.log(`удалил ${i}${j}`)
-            if (i < this.matrix.length - 1) {
+            if (i < this.matrixResources.length - 1) {
                 i++;
-                this.removeFromScene(i, j)
-            } else if (i == this.matrix.length - 1 && j > 0) {
+                this.getResource(i, j)
+            } else if (i == this.matrixResources.length - 1 && j > 0) {
                 i = 0;
                 j--;
-                this.removeFromScene(i, j)
+                this.getResource(i, j)
             } else{
                 setTimeout(() => {
                     this.moveBlocksForvard();
@@ -52,19 +85,11 @@ export default class MineMatrix {
         }, 1000)
     }
 
-    constructor(scene, resourceController) {
-        this.resourceController = resourceController;
+    show(scene){
         this.scene = scene;
-        this.matrix = new Array(4);
-        for (let i = 0; i < this.matrix.length; i++) {
-            this.matrix[i] = new Array(4);
-            for (let j = 0; j < this.matrix[i].length; j++) {
-                this.matrix[i][j] = new Array(2);
-            }
+    }
 
-        }
-        for (let k = 0; k < this.matrix[0][0].length; k++) {
-            this.ceateLevelOfBlocks(k);
-        }
+    stopShow(){
+        this.scene = undefined;
     }
 }

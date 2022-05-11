@@ -15,9 +15,9 @@ export default class ResourceController{
     constructor(gltfLoader){
         this.resources = [
             new Resource("Земля","ground","ground.glb"),
-            new Resource("Обагащенная земля","jewel_ground","jewel_ground.glb"),
+            new Resource("Обогащенная земля","jewel_ground","jewel_ground.glb"),
             new Resource("Гравий","gravy","gravy.glb"),
-            new Resource("Обагащенный гравий","jewel_gravy","jewel_gravy.glb"),
+            new Resource("Обогащенный гравий","jewel_gravy","jewel_gravy.glb"),
         ];
         this.levelsProbability = [0.4, 0.2, 0.3, 0.1];
         for (let i = 0; i < this.resources.length; i++) {
@@ -27,21 +27,21 @@ export default class ResourceController{
         }
     }
 
-    changeResourceCount(name, number){
-        let changedResource;
-        for (const resource_ of this.resources) {
-            if(resource_.name2 === name) {
-                changedResource = resource_;
-                break;
-            }
-        }
-        if(changedResource == undefined){
-            throw new Error("Указан не верный ресурс");
-        }
-        changedResource.changeCount(number);
-    }
+    // changeResourceCount(name, number){
+    //     let changedResource;
+    //     for (const resource_ of this.resources) {
+    //         if(resource_.name2 === name) {
+    //             changedResource = resource_;
+    //             break;
+    //         }
+    //     }
+    //     if(changedResource == undefined){
+    //         throw new Error("Указан не верный ресурс");
+    //     }
+    //     changedResource.changeCount(number);
+    // }
 
-    getRandomObject3D(){
+    getRandomResource(){
         let randomNumber = Math.random();
         let i = 0;
         let summ = 0;
@@ -49,7 +49,7 @@ export default class ResourceController{
             summ += this.levelsProbability[i];
             i++;
         }
-        return this.resources[i].getObject3D();
+        return this.resources[i];
     }
 
 
