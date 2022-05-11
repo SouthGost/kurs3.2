@@ -31,7 +31,7 @@ export default class Mine {
 
     // }
 
-    visible(renderer, scene, camera) {
+    visible(renderer, scene, camera, mixers) {
         renderer.setClearColor(0x000000);
         camera.position.set(10, 10, 10);
         camera.lookAt(0,0,0);
@@ -39,7 +39,7 @@ export default class Mine {
             scene.add(object_);
         }
         this.mineMatrix.show(scene);
-        this.work();
+        // this.work();
     }
 
     work(){
