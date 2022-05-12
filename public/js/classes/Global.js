@@ -3,7 +3,7 @@ import * as THREE from 'three';
 export default class Global {
 
     constructor(gltfLoader) {
-
+        this.name = "База";
         const dirLight = new THREE.DirectionalLight(0x55505a, 1);
         dirLight.position.set(0, 100, 40);
         dirLight.castShadow = true;
@@ -48,9 +48,7 @@ export default class Global {
         for (const object_ of this.objects3d) {
             scene.add(object_);
         }
-        if(mixers.length > 0){
-            mixers.splice(0,mixers.length);
-        }
+
         for (const mixer of this.mixers) {
             mixers.push(mixer);
         }
@@ -58,5 +56,11 @@ export default class Global {
             action.play();
         }
         // this.work();
+    }
+
+    hide(){
+        for (const action of this.actions) {
+            action.stop();
+        }
     }
 }

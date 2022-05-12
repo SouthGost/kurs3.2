@@ -86,9 +86,9 @@ export default class MinematrixResources {
 
         for (let i = 0; i < this.matrixResources.length; i++) {
             for (let j = 0; j < this.matrixResources[i].length; j++) {
-                for (let k = 0; k < this.matrixResources[i][j].length; k++){
+                for (let k = 0; k < this.matrixResources[i][j].length; k++) {
                     const resource = this.matrixResources[i][j][k];
-                    if(resource != undefined){
+                    if (resource != undefined) {
                         const object3D = resource.getObject3D();
                         this.matrixObjects3D[i][j][k] = object3D;
                         object3D.position.set(i * 2, j * 2, k * 2);
@@ -100,6 +100,15 @@ export default class MinematrixResources {
     }
 
     stopShow() {
+        for (let i = 0; i < this.matrixObjects3D.length; i++) {
+            for (let j = 0; j < this.matrixObjects3D[i].length; j++) {
+                for (let k = 0; k < this.matrixObjects3D[i][j].length; k++) {
+                    if (this.matrixObjects3D[i][j][k] != undefined) {
+                        this.scene.remove(this.matrixObjects3D[i][j][k])
+                    }
+                }
+            }
+        }
         this.scene = undefined;
     }
 }

@@ -8,6 +8,7 @@ export default class Space {
     resize = () => {
         this.width = window.innerWidth;
         this.height = window.innerHeight;
+        this.currentLocationId = undefined;
 
         this.canvas.setAttribute('width', this.width + "");
         this.canvas.setAttribute('height', this.height + "");
@@ -25,13 +26,21 @@ export default class Space {
         if (i < 0 || i >= this.locations.length) {
             throw new Error("Неизвесная локация");
         }
+        if (this.currentLocationId != undefined) {
+            this.locations[this.currentLocationId].hide();
+        }
         this.scene.clear();
+        if (this.mixers.length > 0) {
+            this.mixers.splice(0, this.mixers.length);
+        }
+
         this.locations[i].visible(
             this.renderer,
             this.scene,
             this.camera,
             this.mixers
         );
+        this.currentLocationId = i;
     }
 
     constructor(canvas_name) {
@@ -52,6 +61,16 @@ export default class Space {
             console.log("init space");
             this.show();
             this.visibleLocation(0);
+            const locationsContent = document.getElementById("locations_content");
+
+            for (let i = 0; i < this.locations.length; i++) {
+                const button = document.createElement("button");
+                button.innerText = this.locations[i].name;
+                button.onclick = () => {
+                    this.visibleLocation(i);
+                }
+                locationsContent.append(button);
+            }
             // setTimeout(()=>{
             //     this.visibleLocation(0);
             // },2_000);

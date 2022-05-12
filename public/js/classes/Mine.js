@@ -7,7 +7,7 @@ import * as THREE from 'three'
 export default class Mine {
 
     constructor(gltfLoader) {
-    
+        this.name = "Шахта";
         this.resourceController = new ResourceController(gltfLoader);
         this.mineMatrix = new MineMatrix( this.resourceController);
         this.objects3d = [
@@ -40,6 +40,10 @@ export default class Mine {
         }
         this.mineMatrix.show(scene);
         // this.work();
+    }
+
+    hide(){
+        this.mineMatrix.stopShow();
     }
 
     work(){

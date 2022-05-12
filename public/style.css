@@ -29,24 +29,30 @@ body, html{
 }
 
 
-#info_container{
+#header{
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     background: rgba(255, 255, 255, 0.37);
     border-bottom: 1px solid black;
+    color: white;
+    user-select: none;
     z-index: 1;
 }
 
 #info_content{
     padding-left: 50px;
-    color: white;
 }
 
 #info_content p{
     padding-right: 5px; 
-    user-select: none;   
+}
+
+#locations_content{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .row{
