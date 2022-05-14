@@ -7,6 +7,7 @@ export default class MinematrixResources {
         this.scene = undefined;
         this.matrixResources = new Array(4);
         this.matrixObjects3D = new Array(4);
+        this.workersCount = 2;
         for (let i = 0; i < this.matrixResources.length; i++) {
             this.matrixResources[i] = new Array(4);
             this.matrixObjects3D[i] = new Array(4);
@@ -55,30 +56,44 @@ export default class MinematrixResources {
     }
 
     getResource(i, j) {
-        setTimeout(() => {
-            const resource = this.matrixResources[i][j][1];
-            if (this.scene != undefined) {
-                this.scene.remove(this.matrixObjects3D[i][j][1]);
-                this.matrixObjects3D[i][j][1] = undefined;
-            }
-            resource.changeCount(1)
-            // this.resourceController.changeResourceCount(resource.name, 1);
-            this.matrixResources[i][j][1] = undefined;
-            // console.log(`удалил ${i}${j}`)
-            if (i < this.matrixResources.length - 1) {
-                i++;
-                this.getResource(i, j)
-            } else if (i == this.matrixResources.length - 1 && j > 0) {
-                i = 0;
-                j--;
-                this.getResource(i, j)
-            } else {
-                setTimeout(() => {
-                    this.moveBlocksForvard();
-                    this.work();
-                }, 500)
-            }
-        }, 1000)
+        if (this.workersCount == 0) {
+            setTimeout(() => { this.getResource(i, j) }, 1000)
+        } else {
+            setTimeout(() => {
+                const resource = this.matrixResources[i][j][1];
+                if (this.scene != undefined) {
+                    this.scene.remove(this.matrixObjects3D[i][j][1]);
+                    this.matrixObjects3D[i][j][1] = undefined;
+                }
+                resource.changeCount(1)
+                // this.resourceController.changeResourceCount(resource.name, 1);
+                this.matrixResources[i][j][1] = undefined;
+                // console.log(`удалил ${i}${j}`)
+                if (i < this.matrixResources.length - 1) {
+                    i++;
+                    this.getResource(i, j)
+                } else if (i == this.matrixResources.length - 1 && j > 0) {
+                    i = 0;
+                    j--;
+                    this.getResource(i, j)
+                } else {
+                    setTimeout(() => {
+                        this.moveBlocksForvard();
+                        this.work();
+                    }, 500 / this.workersCount)
+                }
+            }, 1000 / this.workersCount)
+        }
+    }
+
+    setWorkersCount(count){
+        if(count < 0){
+            throw new Error("Нельзя установить отрицательное число рабочих");
+        }
+        const workersCountParagraph = document.getElementById("workers_count");
+        this.workersCount = count;
+        workersCountParagraph.innerText = count;
+        
     }
 
     show(scene) {
@@ -100,15 +115,16 @@ export default class MinematrixResources {
     }
 
     stopShow() {
+        const scene = this.scene;
+        this.scene = undefined;
         for (let i = 0; i < this.matrixObjects3D.length; i++) {
             for (let j = 0; j < this.matrixObjects3D[i].length; j++) {
                 for (let k = 0; k < this.matrixObjects3D[i][j].length; k++) {
                     if (this.matrixObjects3D[i][j][k] != undefined) {
-                        this.scene.remove(this.matrixObjects3D[i][j][k])
+                        scene.remove(this.matrixObjects3D[i][j][k])
                     }
                 }
             }
         }
-        this.scene = undefined;
     }
 }

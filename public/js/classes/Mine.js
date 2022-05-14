@@ -39,11 +39,42 @@ export default class Mine {
             scene.add(object_);
         }
         this.mineMatrix.show(scene);
+        this.showInfo();
         // this.work();
+    }
+
+    showInfo(){
+        const location_content = document.getElementById("location_content");
+
+        const information = document.createElement("p");
+        information.innerText = "Рабочих в шахте:";
+
+        const workersCountParagraph = document.createElement("p");
+        workersCountParagraph.id = "workers_count";
+        workersCountParagraph.innerText = this.mineMatrix.workersCount;
+        
+        const addWorkerButton = document.createElement("button");
+        addWorkerButton.onclick = () => {
+            this.mineMatrix.setWorkersCount(this.mineMatrix.workersCount+1);
+        };
+        addWorkerButton.innerText = "+";
+
+        const removeWorkerButton = document.createElement("button");
+        removeWorkerButton.onclick = () => {
+            this.mineMatrix.setWorkersCount(this.mineMatrix.workersCount-1);
+        };
+        removeWorkerButton.innerText = "-";
+
+        location_content.append(information);
+        location_content.append(workersCountParagraph);
+        location_content.append(addWorkerButton);
+        location_content.append(removeWorkerButton);
     }
 
     hide(){
         this.mineMatrix.stopShow();
+        const location_content = document.getElementById("location_content");
+        location_content.innerHTML = "";
     }
 
     work(){

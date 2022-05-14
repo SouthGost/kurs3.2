@@ -61,7 +61,7 @@ export default class Space {
             console.log("init space");
             this.show();
             this.visibleLocation(0);
-            const locationsContent = document.getElementById("locations_content");
+            const locationsContent = document.getElementById("location_selection");
 
             for (let i = 0; i < this.locations.length; i++) {
                 const button = document.createElement("button");
@@ -71,16 +71,6 @@ export default class Space {
                 }
                 locationsContent.append(button);
             }
-            // setTimeout(()=>{
-            //     this.visibleLocation(0);
-            // },2_000);
-            // setTimeout(()=>{
-            //     this.visibleLocation(1);
-            // },4_000);
-            // setTimeout(()=>{
-            //     this.visibleLocation(0);
-            // },6_000);
-            // this.mixers.
             this.locations[0].work();
         }
 

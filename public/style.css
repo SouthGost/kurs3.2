@@ -49,10 +49,15 @@ body, html{
     padding-right: 5px; 
 }
 
-#locations_content{
+#location_selection{
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+#location_content{
+    display: flex;
+    align-items: center;
 }
 
 .row{

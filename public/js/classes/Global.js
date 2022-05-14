@@ -43,7 +43,7 @@ export default class Global {
 
     visible(renderer, scene, camera, mixers) {
         renderer.setClearColor(0x00FFFF);
-        camera.position.set(0, 0, 100);
+        camera.position.set(0, 40, 15);
         camera.lookAt(0, 0, 0);
         for (const object_ of this.objects3d) {
             scene.add(object_);
