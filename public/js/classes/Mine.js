@@ -6,9 +6,9 @@ import * as THREE from 'three'
 
 export default class Mine {
 
-    constructor(gltfLoader) {
+    constructor(gltfLoader, resourceController) {
         this.name = "Шахта";
-        this.resourceController = new ResourceController(gltfLoader);
+        this.resourceController = resourceController;
         this.mineMatrix = new MineMatrix( this.resourceController);
         this.objects3d = [
             new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1),

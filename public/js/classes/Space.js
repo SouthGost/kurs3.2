@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
 import Mine from "./Mine.js";
 import Global from './Global.js';
+import Modal from './Modal.js';
+import ResourceController from "./ResourceController.js";
 import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
 
 export default class Space {
@@ -26,21 +28,22 @@ export default class Space {
         if (i < 0 || i >= this.locations.length) {
             throw new Error("Неизвесная локация");
         }
-        if (this.currentLocationId != undefined) {
-            this.locations[this.currentLocationId].hide();
+        if (this.currentLocationId != i) {
+            if (this.currentLocationId != undefined) {
+                this.locations[this.currentLocationId].hide();
+            }
+            this.scene.clear();
+            if (this.mixers.length > 0) {
+                this.mixers.splice(0, this.mixers.length);
+            }
+            this.locations[i].visible(
+                this.renderer,
+                this.scene,
+                this.camera,
+                this.mixers
+            );
+            this.currentLocationId = i;
         }
-        this.scene.clear();
-        if (this.mixers.length > 0) {
-            this.mixers.splice(0, this.mixers.length);
-        }
-
-        this.locations[i].visible(
-            this.renderer,
-            this.scene,
-            this.camera,
-            this.mixers
-        );
-        this.currentLocationId = i;
     }
 
     constructor(canvas_name) {
@@ -60,7 +63,7 @@ export default class Space {
         const init = () => {
             console.log("init space");
             this.show();
-            this.visibleLocation(0);
+            this.visibleLocation(1);
             const locationsContent = document.getElementById("location_selection");
 
             for (let i = 0; i < this.locations.length; i++) {
@@ -79,10 +82,14 @@ export default class Space {
         this.manager.onLoad = init;
 
         this.gltfLoader = new GLTFLoader(this.manager);
+        this.resourceController = new ResourceController(this.gltfLoader);
         this.locations = [
-            new Mine(this.gltfLoader),
-            new Global(this.gltfLoader),
+            new Mine(this.gltfLoader, this.resourceController),
+            new Global(this.gltfLoader, this.resourceController),
         ];
+
+        //----место для html редактора
+        this.modal = new Modal();
 
         window.addEventListener('resize', this.resize);
     }

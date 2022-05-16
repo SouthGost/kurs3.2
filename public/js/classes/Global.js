@@ -2,8 +2,9 @@ import * as THREE from 'three';
 
 export default class Global {
 
-    constructor(gltfLoader) {
+    constructor(gltfLoader, resourceController) {
         this.name = "База";
+        this.resourceController = resourceController;
         const dirLight = new THREE.DirectionalLight(0x55505a, 1);
         dirLight.position.set(0, 100, 40);
         dirLight.castShadow = true;
@@ -55,12 +56,57 @@ export default class Global {
         for (const action of this.actions) {
             action.play();
         }
-        // this.work();
+        this.showInfo();
+    }
+
+    showInfo(){
+        const location_content = document.getElementById("location_content");
+
+        const manageWorkerButton = document.createElement("button");
+        manageWorkerButton.onclick = () =>{
+            const modal = document.getElementById("modal");
+            const modalName = document.getElementById("modal_name");
+            const modalContent = document.getElementById("modal_content");
+            
+            modalName.innerText = "Управление рабочими";
+            
+            const paragraph = document.createElement("p");
+            paragraph.innerText = "Рабочих всего";
+
+            const allWorkersParagraph = document.createElement("p");
+            allWorkersParagraph.innerText = this.resourceController.workers.length;
+
+            const hireWorkerButton = document.createElement("button");
+            hireWorkerButton.onclick = () => {
+                this.resourceController.addWorker();
+                allWorkersParagraph.innerText = this.resourceController.workers.length;
+            }
+            hireWorkerButton.innerText = "Нанять рабочего";
+
+            const dismissWorkerButton = document.createElement("button");
+            dismissWorkerButton.onclick = () => {
+                this.resourceController.removeWorker();
+                allWorkersParagraph.innerText = this.resourceController.workers.length;
+            }
+            dismissWorkerButton.innerText = "Уволить рабочего";
+
+            modalContent.append(paragraph);
+            modalContent.append(allWorkersParagraph);
+            modalContent.append(hireWorkerButton);
+            modalContent.append(dismissWorkerButton);
+        
+            modal.style.visibility = "visible";
+        }
+        manageWorkerButton.innerText = "Управление рабочими";
+        
+        location_content.append(manageWorkerButton);
     }
 
     hide(){
         for (const action of this.actions) {
             action.stop();
         }
+        const location_content = document.getElementById("location_content");
+        location_content.innerHTML = "";
     }
 }

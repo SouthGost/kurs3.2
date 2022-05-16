@@ -15,7 +15,6 @@ export default class MinematrixResources {
                 this.matrixResources[i][j] = new Array(2);
                 this.matrixObjects3D[i][j] = new Array(2);
             }
-
         }
         for (let k = 0; k < this.matrixResources[0][0].length; k++) {
             this.ceateLevelOfResources(k);
