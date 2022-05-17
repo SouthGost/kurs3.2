@@ -31,15 +31,18 @@ body, html{
 
 #header{
     position: absolute;
-    display: flex;
     top: 0;
     left: 0;
     width: 100%;
     background: rgba(255, 255, 255, 0.37);
-    border-bottom: 1px solid black;
     color: white;
     user-select: none;
     z-index: 1;
+}
+
+.header_container{
+    display: flex;
+    border-bottom: 1px solid black;
 }
 
 #info_content{
@@ -60,6 +63,25 @@ body, html{
 #location_content{
     display: flex;
     align-items: center;
+}
+
+#message_container{
+    position: absolute;
+    right: 0;
+    margin-right: 5px;
+}
+
+.message{
+    margin-top: 5px;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.37);
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+.message p{
+    /* user-select: text; */
+    margin: 0;
 }
 
 #modal {

@@ -7,7 +7,7 @@ export default class MinematrixResources {
         this.scene = undefined;
         this.matrixResources = new Array(4);
         this.matrixObjects3D = new Array(4);
-        this.workersCount = 2;
+        this.workers = [];
         for (let i = 0; i < this.matrixResources.length; i++) {
             this.matrixResources[i] = new Array(4);
             this.matrixObjects3D[i] = new Array(4);
@@ -55,7 +55,7 @@ export default class MinematrixResources {
     }
 
     getResource(i, j) {
-        if (this.workersCount == 0) {
+        if (this.workers.length == 0) {
             setTimeout(() => { this.getResource(i, j) }, 1000)
         } else {
             setTimeout(() => {
@@ -79,20 +79,33 @@ export default class MinematrixResources {
                     setTimeout(() => {
                         this.moveBlocksForvard();
                         this.work();
-                    }, 500 / this.workersCount)
+                    }, 500 / this.workers.length)
                 }
-            }, 1000 / this.workersCount)
+            }, 1000 / this.workers.length)
         }
     }
 
-    setWorkersCount(count){
-        if(count < 0){
-            throw new Error("Нельзя установить отрицательное число рабочих");
+    addWorker(worker){
+        if(!worker.isFree){
+            throw new Error("Этот рабочий занят");
         }
+        worker.isFree = false;
+        this.workers.push(worker);
+        this.showWorkersCount();
+    }
+
+    removeWorker(){
+        if(this.workers.length == 0){
+            throw new Error("В шахте нет рабочих");
+        }
+        const worker = this.workers.splice(0,1);
+        worker[0].isFree = true;
+        this.showWorkersCount();
+    }
+
+    showWorkersCount(){
         const workersCountParagraph = document.getElementById("workers_count");
-        this.workersCount = count;
-        workersCountParagraph.innerText = count;
-        
+        workersCountParagraph.innerText = this.workers.length;
     }
 
     show(scene) {

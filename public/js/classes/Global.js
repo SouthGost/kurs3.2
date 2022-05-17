@@ -2,9 +2,10 @@ import * as THREE from 'three';
 
 export default class Global {
 
-    constructor(gltfLoader, resourceController) {
+    constructor(gltfLoader, resourceController, htmlController) {
         this.name = "База";
         this.resourceController = resourceController;
+        this.htmlController = htmlController;
         const dirLight = new THREE.DirectionalLight(0x55505a, 1);
         dirLight.position.set(0, 100, 40);
         dirLight.castShadow = true;
@@ -32,10 +33,10 @@ export default class Global {
                 const objectName = animation_.name.split(".")[0];
                 const animatedObject = hoist.getObjectByName(objectName)
                 const mixer = new THREE.AnimationMixer(animatedObject);
-                
+
                 this.mixers.push(mixer);
                 const action = mixer.clipAction(animation_);
-                
+
                 this.actions.push(action);
             }
             this.objects3d.push(hoist);
@@ -59,17 +60,11 @@ export default class Global {
         this.showInfo();
     }
 
-    showInfo(){
+    showInfo() {
         const location_content = document.getElementById("location_content");
 
         const manageWorkerButton = document.createElement("button");
-        manageWorkerButton.onclick = () =>{
-            const modal = document.getElementById("modal");
-            const modalName = document.getElementById("modal_name");
-            const modalContent = document.getElementById("modal_content");
-            
-            modalName.innerText = "Управление рабочими";
-            
+        manageWorkerButton.onclick = () => {
             const paragraph = document.createElement("p");
             paragraph.innerText = "Рабочих всего";
 
@@ -78,31 +73,43 @@ export default class Global {
 
             const hireWorkerButton = document.createElement("button");
             hireWorkerButton.onclick = () => {
-                this.resourceController.addWorker();
-                allWorkersParagraph.innerText = this.resourceController.workers.length;
+                try {
+                    this.resourceController.addWorker();
+                    allWorkersParagraph.innerText = this.resourceController.workers.length;
+                } catch (error) {
+                    this.htmlController.notifyMessage(error.message);
+                }
             }
             hireWorkerButton.innerText = "Нанять рабочего";
 
             const dismissWorkerButton = document.createElement("button");
             dismissWorkerButton.onclick = () => {
-                this.resourceController.removeWorker();
-                allWorkersParagraph.innerText = this.resourceController.workers.length;
+                try {
+                    this.resourceController.removeWorker();
+                    allWorkersParagraph.innerText = this.resourceController.workers.length;
+                } catch (error) {
+                    this.htmlController.notifyMessage(error.message);
+                }
             }
             dismissWorkerButton.innerText = "Уволить рабочего";
 
-            modalContent.append(paragraph);
-            modalContent.append(allWorkersParagraph);
-            modalContent.append(hireWorkerButton);
-            modalContent.append(dismissWorkerButton);
-        
-            modal.style.visibility = "visible";
+            this.htmlController.openModal(
+                "Управление рабочими",
+                [
+                    paragraph,
+                    allWorkersParagraph,
+                    hireWorkerButton,
+                    dismissWorkerButton
+                ]
+            )
         }
         manageWorkerButton.innerText = "Управление рабочими";
-        
+
+        location_content.innerHTML = "";
         location_content.append(manageWorkerButton);
     }
 
-    hide(){
+    hide() {
         for (const action of this.actions) {
             action.stop();
         }

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
 import Mine from "./Mine.js";
 import Global from './Global.js';
-import Modal from './Modal.js';
+import HTMLController from './html/HTMLController.js';
 import ResourceController from "./ResourceController.js";
 import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
 
@@ -36,13 +36,13 @@ export default class Space {
             if (this.mixers.length > 0) {
                 this.mixers.splice(0, this.mixers.length);
             }
+            this.currentLocationId = i;
             this.locations[i].visible(
                 this.renderer,
                 this.scene,
                 this.camera,
                 this.mixers
             );
-            this.currentLocationId = i;
         }
     }
 
@@ -83,13 +83,13 @@ export default class Space {
 
         this.gltfLoader = new GLTFLoader(this.manager);
         this.resourceController = new ResourceController(this.gltfLoader);
+        this.htmlController = new HTMLController();
         this.locations = [
-            new Mine(this.gltfLoader, this.resourceController),
-            new Global(this.gltfLoader, this.resourceController),
+            new Mine(this.gltfLoader, this.resourceController, this.htmlController),
+            new Global(this.gltfLoader, this.resourceController, this.htmlController),
         ];
 
         //----место для html редактора
-        this.modal = new Modal();
 
         window.addEventListener('resize', this.resize);
     }

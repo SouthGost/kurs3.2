@@ -48,6 +48,20 @@ export default class ResourceController {
         this.workers.splice(removedWorkerId,1);
     }
 
+    getFreeWorker(){
+        let freeWorker = undefined;
+        for (const worker_  of this.workers) {
+            if(worker_.isFree){
+                freeWorker = worker_;
+                break;
+            }
+        }
+        if(freeWorker === undefined){
+            throw new Error("Нет сободных рабочих");
+        }
+        return freeWorker;
+    }
+
     // changeResourceCount(name, number){
     //     let changedResource;
     //     for (const resource_ of this.resources) {
