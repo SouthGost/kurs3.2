@@ -17,7 +17,7 @@ export default class Message{
 
         setTimeout(() =>{
             this.messageContainer.removeChild(messageDiv);
-        }, 2000);
+        }, 5000);
     }
 
 }

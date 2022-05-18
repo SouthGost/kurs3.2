@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
 import Mine from "./Mine.js";
-import Global from './Global.js';
+import MainLocation from './MainLocation.js';
 import HTMLController from './html/HTMLController.js';
 import ResourceController from "./ResourceController.js";
 import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
@@ -86,10 +86,8 @@ export default class Space {
         this.htmlController = new HTMLController();
         this.locations = [
             new Mine(this.gltfLoader, this.resourceController, this.htmlController),
-            new Global(this.gltfLoader, this.resourceController, this.htmlController),
+            new MainLocation(this.gltfLoader, this.resourceController, this.htmlController),
         ];
-
-        //----место для html редактора
 
         window.addEventListener('resize', this.resize);
     }

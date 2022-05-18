@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Worker from './Worker.js';
 
 export default class Global {
 
@@ -68,14 +69,16 @@ export default class Global {
             const paragraph = document.createElement("p");
             paragraph.innerText = "Рабочих всего";
 
-            const allWorkersParagraph = document.createElement("p");
-            allWorkersParagraph.innerText = this.resourceController.workers.length;
+            const workersParagraph = document.createElement("p");
+            workersParagraph.innerText = this.resourceController.getWorkersInfo();
 
             const hireWorkerButton = document.createElement("button");
             hireWorkerButton.onclick = () => {
                 try {
-                    this.resourceController.addWorker();
-                    allWorkersParagraph.innerText = this.resourceController.workers.length;
+                    const worker = new Worker();
+                    this.resourceController.removeMoney(worker.cost);
+                    this.resourceController.addWorker(worker);
+                    workersParagraph.innerText = this.resourceController.getWorkersInfo();
                 } catch (error) {
                     this.htmlController.notifyMessage(error.message);
                 }
@@ -86,7 +89,7 @@ export default class Global {
             dismissWorkerButton.onclick = () => {
                 try {
                     this.resourceController.removeWorker();
-                    allWorkersParagraph.innerText = this.resourceController.workers.length;
+                    workersParagraph.innerText = this.resourceController.getWorkersInfo();
                 } catch (error) {
                     this.htmlController.notifyMessage(error.message);
                 }
@@ -97,7 +100,7 @@ export default class Global {
                 "Управление рабочими",
                 [
                     paragraph,
-                    allWorkersParagraph,
+                    workersParagraph,
                     hireWorkerButton,
                     dismissWorkerButton
                 ]

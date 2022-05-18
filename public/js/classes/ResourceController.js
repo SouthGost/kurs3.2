@@ -1,5 +1,6 @@
 import Resource from "./Resource.js";
 import Worker from "./Worker.js";
+import Money from "./Money.js";
 
 // function random(a, b) {
 //     if (a > b) {
@@ -14,6 +15,7 @@ import Worker from "./Worker.js";
 export default class ResourceController {
 
     constructor(gltfLoader) {
+        this.money = new Money(400);
         this.resources = [
             new Resource("Земля", "ground", "ground.glb"),
             new Resource("Обогащенная земля", "jewel_ground", "jewel_ground.glb"),
@@ -29,37 +31,59 @@ export default class ResourceController {
         }
     }
 
-    addWorker() {
-        this.workers.push(new Worker());
+    addWorker(worker) {
+        this.workers.push(worker);
     }
 
     //setWorkersCount(count){
     removeWorker() {
         let removedWorkerId = -1;
-        for(let i = 0; i < this.workers.length; i++){
-            if(this.workers[i].isFree){
+        for (let i = 0; i < this.workers.length; i++) {
+            if (this.workers[i].isFree) {
                 removedWorkerId = i;
                 break;
             }
         }
-        if(removedWorkerId == -1){
+        if (removedWorkerId == -1) {
             throw new Error("Нет свободных рабочих, которых можно уволить");
-        } 
-        this.workers.splice(removedWorkerId,1);
+        }
+        this.workers.splice(removedWorkerId, 1);
     }
 
-    getFreeWorker(){
+    addMoney(value) {
+        this.money.add(value);
+    }
+
+    removeMoney(value) {
+        this.money.remove(value);
+    }
+
+    getFreeWorker() {
         let freeWorker = undefined;
-        for (const worker_  of this.workers) {
-            if(worker_.isFree){
+        for (const worker_ of this.workers) {
+            if (worker_.isFree) {
                 freeWorker = worker_;
                 break;
             }
         }
-        if(freeWorker === undefined){
+        if (freeWorker === undefined) {
             throw new Error("Нет сободных рабочих");
         }
         return freeWorker;
+    }
+
+    getFreeWorkersCount() {
+        let count = 0;
+        for (const worker_ of this.workers) {
+            if (worker_.isFree) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    getWorkersInfo(){
+        return `${this.workers.length} (${this.getFreeWorkersCount()})`;
     }
 
     // changeResourceCount(name, number){

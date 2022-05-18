@@ -1,13 +1,14 @@
 import * as SkeletonUtils from '../../jsm/utils/SkeletonUtils.js';
-const infoContent = document.getElementById("info_content");
 
 export default class Resource{
-
+    
     constructor(name, name2, url){
         this.name = name;
         this.name2 = name2;
         this.url = url;
         this.count = 0;
+        
+        const infoContent = document.getElementById("info_content");
 
         const rowDiv = document.createElement("div");
         rowDiv.className = "row";
