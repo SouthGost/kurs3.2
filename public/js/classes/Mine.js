@@ -14,23 +14,18 @@ export default class Mine {
         this.objects3d = [
             new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1),
         ];
-        gltfLoader.load(`/models/location/Galerie.glb`, (gltf) => {
+        gltfLoader.load(`/models/location/Mine.glb`, (gltf) => {
             const root = gltf.scene;
             root.position.set(6, -2, 26);
             this.objects3d.push(root);
-            // this.scene.add(root);
         });
         gltfLoader.load(`/models/miner/scene.gltf`, (gltf) => {
             const root = gltf.scene;
             root.position.set(0, 0, 4);
             this.objects3d.push(root);
-            // this.scene.add(root);
         });
     }
 
-    // init(){
-
-    // }
 
     visible(renderer, scene, camera, mixers) {
         renderer.setClearColor(0x000000);
@@ -41,12 +36,9 @@ export default class Mine {
         }
         this.mineMatrix.show(scene);
         this.showInfo();
-        // this.work();
     }
 
     showInfo() {
-        const location_content = document.getElementById("location_content");
-
         const informationParagraph = document.createElement("p");
         informationParagraph.innerText = "Рабочих в шахте:";
 
@@ -74,17 +66,16 @@ export default class Mine {
         };
         removeWorkerButton.innerText = "-";
 
-        location_content.innerHTML = "";
-        location_content.append(informationParagraph);
-        location_content.append(workersCountParagraph);
-        location_content.append(addWorkerButton);
-        location_content.append(removeWorkerButton);
+        this.htmlController.showLocationContent([
+            informationParagraph,
+            workersCountParagraph,
+            addWorkerButton,
+            removeWorkerButton,
+        ]);
     }
 
     hide() {
         this.mineMatrix.stopShow();
-        const location_content = document.getElementById("location_content");
-        location_content.innerHTML = "";
     }
 
     work() {

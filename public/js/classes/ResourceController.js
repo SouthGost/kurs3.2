@@ -2,25 +2,16 @@ import Resource from "./Resource.js";
 import Worker from "./Worker.js";
 import Money from "./Money.js";
 
-// function random(a, b) {
-//     if (a > b) {
-//         throw new Error('a > b');
-//     }
-//     if (a == b) {
-//         return a;
-//     }
-//     return Math.round(Math.random() * (b - a) + a);
-// }
 
 export default class ResourceController {
 
     constructor(gltfLoader) {
         this.money = new Money(400);
         this.resources = [
-            new Resource("Земля", "ground", "ground.glb"),
-            new Resource("Обогащенная земля", "jewel_ground", "jewel_ground.glb"),
-            new Resource("Гравий", "gravy", "gravy.glb"),
-            new Resource("Обогащенный гравий", "jewel_gravy", "jewel_gravy.glb"),
+            new Resource("Земля", "ground", "ground.glb", -20),
+            new Resource("Обогащенная земля", "jewel_ground", "jewel_ground.glb", 50),
+            new Resource("Гравий", "gravy", "gravy.glb", -10),
+            new Resource("Обогащенный гравий", "jewel_gravy", "jewel_gravy.glb", 200),
         ];
         this.levelsProbability = [0.4, 0.2, 0.3, 0.1];
         this.workers = [];
@@ -35,7 +26,6 @@ export default class ResourceController {
         this.workers.push(worker);
     }
 
-    //setWorkersCount(count){
     removeWorker() {
         let removedWorkerId = -1;
         for (let i = 0; i < this.workers.length; i++) {
@@ -85,20 +75,6 @@ export default class ResourceController {
     getWorkersInfo(){
         return `${this.workers.length} (${this.getFreeWorkersCount()})`;
     }
-
-    // changeResourceCount(name, number){
-    //     let changedResource;
-    //     for (const resource_ of this.resources) {
-    //         if(resource_.name2 === name) {
-    //             changedResource = resource_;
-    //             break;
-    //         }
-    //     }
-    //     if(changedResource == undefined){
-    //         throw new Error("Указан не верный ресурс");
-    //     }
-    //     changedResource.changeCount(number);
-    // }
 
     getRandomResource() {
         let randomNumber = Math.random();

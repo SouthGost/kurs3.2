@@ -1,4 +1,5 @@
 import * as SkeletonUtils from '../../jsm/utils/SkeletonUtils.js';
+import Worker from "./Worker.js"
 
 export default class MinematrixResources {
 
@@ -7,7 +8,12 @@ export default class MinematrixResources {
         this.scene = undefined;
         this.matrixResources = new Array(4);
         this.matrixObjects3D = new Array(4);
-        this.workers = [];
+        this.workers = [
+            new Worker(),
+            new Worker(),
+            new Worker(),
+            new Worker(),
+        ];
         for (let i = 0; i < this.matrixResources.length; i++) {
             this.matrixResources[i] = new Array(4);
             this.matrixObjects3D[i] = new Array(4);
@@ -65,7 +71,6 @@ export default class MinematrixResources {
                     this.matrixObjects3D[i][j][1] = undefined;
                 }
                 resource.changeCount(1)
-                // this.resourceController.changeResourceCount(resource.name, 1);
                 this.matrixResources[i][j][1] = undefined;
                 // console.log(`удалил ${i}${j}`)
                 if (i < this.matrixResources.length - 1) {

@@ -9,6 +9,7 @@ export default class Modal {
     }
 
     open(name, HTMLElements){
+        this.modalContent.innerHTML = "";
         this.modal.style.visibility = "visible";
         this.modalName.innerText = name;
         for (const element of HTMLElements) {

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
 import Mine from "./Mine.js";
 import MainLocation from './MainLocation.js';
+import TradeLocation from "./TradeLocation.js";
 import HTMLController from './html/HTMLController.js';
 import ResourceController from "./ResourceController.js";
 import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
@@ -47,11 +48,13 @@ export default class Space {
     }
 
     constructor(canvas_name) {
-        this.canvas = document.getElementById(canvas_name);
         this.width = window.innerWidth;
         this.height = window.innerHeight;
+
+        this.canvas = document.getElementById(canvas_name);
         this.canvas.setAttribute('width', this.width + "");
         this.canvas.setAttribute('height', this.height + "");
+        
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true });
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(90, this.width / this.height, 1, 1000)
@@ -59,26 +62,26 @@ export default class Space {
         this.clock = new THREE.Clock();
         this.delta;
         this.mixers = [];
-
+        
         const init = () => {
             console.log("init space");
             this.show();
             this.visibleLocation(1);
-            const locationsContent = document.getElementById("location_selection");
-
+            const locationButtons = [];
+            
             for (let i = 0; i < this.locations.length; i++) {
                 const button = document.createElement("button");
                 button.innerText = this.locations[i].name;
                 button.onclick = () => {
                     this.visibleLocation(i);
                 }
-                locationsContent.append(button);
+                locationButtons.push(button);
             }
+            this.htmlController.showLocationSelection(locationButtons);
             this.locations[0].work();
         }
 
         this.manager = new THREE.LoadingManager();
-
         this.manager.onLoad = init;
 
         this.gltfLoader = new GLTFLoader(this.manager);
@@ -87,6 +90,7 @@ export default class Space {
         this.locations = [
             new Mine(this.gltfLoader, this.resourceController, this.htmlController),
             new MainLocation(this.gltfLoader, this.resourceController, this.htmlController),
+            new TradeLocation(this.gltfLoader, this.resourceController, this.htmlController),
         ];
 
         window.addEventListener('resize', this.resize);
@@ -102,9 +106,4 @@ export default class Space {
         requestAnimationFrame(() => { this.loop(); });
     }
 
-    //renderer.setClearColor(0x20B2AA);  this.
-    //camera.position.set(10, 10, 10);
-    //scene.add(light);
-
-    // продумать рендер лууп
 }

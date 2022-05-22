@@ -2,10 +2,11 @@ import * as SkeletonUtils from '../../jsm/utils/SkeletonUtils.js';
 
 export default class Resource{
     
-    constructor(name, name2, url){
+    constructor(name, name2, url, cost){
         this.name = name;
         this.name2 = name2;
         this.url = url;
+        this.cost = cost;
         this.count = 0;
         
         const infoContent = document.getElementById("info_content");
@@ -36,7 +37,6 @@ export default class Resource{
     getObject3D(){
         const object3D = SkeletonUtils.clone(this.scene);
         object3D.name = this.name2;
-        // console.log("obect3d",object3D);
         return object3D;
     }
     
