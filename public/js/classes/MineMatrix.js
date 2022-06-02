@@ -3,17 +3,25 @@ import Worker from "./Worker.js"
 
 export default class MinematrixResources {
 
-    constructor(resourceController) {
+
+    constructor(resourceController, level, depth, isOpen, cost = 0) {
         this.resourceController = resourceController;
+        this.level = level;
+        this.depth = depth;
+        this.isOpen = isOpen;
+        this.cost = cost;
         this.scene = undefined;
+        this.minecart = undefined;
+        this.minecartAction = undefined;
+        this.heaps = undefined;
         this.matrixResources = new Array(4);
         this.matrixObjects3D = new Array(4);
         this.workers = [
-            new Worker(),
-            new Worker(),
-            new Worker(),
-            new Worker(),
+            // new Worker(),
+            // new Worker(),
         ];
+        this.workersCountParagraph = document.createElement('p');
+        this.workersCountParagraph.innerText = this.workers.length;
         for (let i = 0; i < this.matrixResources.length; i++) {
             this.matrixResources[i] = new Array(4);
             this.matrixObjects3D[i] = new Array(4);
@@ -25,16 +33,48 @@ export default class MinematrixResources {
         for (let k = 0; k < this.matrixResources[0][0].length; k++) {
             this.ceateLevelOfResources(k);
         }
+        this.minedResourceI = 0;
+        this.minedResourceJ = this.matrixResources[0].length - 1;
+        // if (isOpen) {
+        //     this.work();
+        // }
+    }
+
+    checkMine() {
+        if (!this.isOpen) {
+            throw new Error("Шахта не открыта");
+        }
+    }
+
+    openMine() {
+        if (this.isOpen) {
+            throw new Error("Шахта уже открыта");
+        }
+        this.resourceController.removeMoney(this.cost)
+        this.isOpen = true;
+    }
+
+    setMinecart(minecart) {
+        this.minecart = minecart;
+    }
+
+    setMinecartAction(minecartAction) {
+        this.minecartAction = minecartAction;
+    }
+
+    setHeaps(heaps) {
+        this.heaps = heaps;
     }
 
     work() {
-        this.getResource(0, this.matrixResources[0].length - 1);
+        this.checkMine();
+        this.getNextResource();
     }
 
     ceateLevelOfResources(k) {
         for (let i = 0; i < this.matrixResources.length; i++) {
             for (let j = 0; j < this.matrixResources[i].length; j++) {
-                const resource = this.resourceController.getRandomResource();
+                const resource = this.resourceController.getRandomResource(this.level);
                 this.matrixResources[i][j][k] = resource;
 
                 if (this.scene != undefined) {
@@ -58,62 +98,73 @@ export default class MinematrixResources {
             }
         }
         this.ceateLevelOfResources(0);
+        if (this.scene != undefined) {
+            this.minecart.add(this.heaps[1]);
+            this.minecartAction.stop();
+            this.minecartAction.play();
+        }
+
     }
 
-    getResource(i, j) {
-        if (this.workers.length == 0) {
-            setTimeout(() => { this.getResource(i, j) }, 1000)
-        } else {
+    getNextResource() {
+        if (!this.workers.length == 0) {  //this.minedResourceI
             setTimeout(() => {
-                const resource = this.matrixResources[i][j][1];
-                if (this.scene != undefined) {
-                    this.scene.remove(this.matrixObjects3D[i][j][1]);
-                    this.matrixObjects3D[i][j][1] = undefined;
-                }
-                resource.changeCount(1)
-                this.matrixResources[i][j][1] = undefined;
-                // console.log(`удалил ${i}${j}`)
-                if (i < this.matrixResources.length - 1) {
-                    i++;
-                    this.getResource(i, j)
-                } else if (i == this.matrixResources.length - 1 && j > 0) {
-                    i = 0;
-                    j--;
-                    this.getResource(i, j)
-                } else {
-                    setTimeout(() => {
-                        this.moveBlocksForvard();
-                        this.work();
-                    }, 500 / this.workers.length)
+                if (!this.workers.length == 0) {
+                    const resource = this.matrixResources[this.minedResourceI][this.minedResourceJ][1];
+                    if (this.scene != undefined) {
+                        this.scene.remove(this.matrixObjects3D[this.minedResourceI][this.minedResourceJ][1]);
+                        this.matrixObjects3D[this.minedResourceI][this.minedResourceJ][1] = undefined;
+                    }
+                    resource.addCount(1)
+                    this.matrixResources[this.minedResourceI][this.minedResourceJ][1] = undefined;
+                    // console.log(`удалил ${i}${j}`)
+                    if (this.minedResourceI < this.matrixResources.length - 1) {
+                        this.minedResourceI++;
+                        this.getNextResource()
+                    } else if (this.minedResourceI == this.matrixResources.length - 1 && this.minedResourceJ > 0) {
+                        this.minedResourceI = 0;
+                        this.minedResourceJ--;
+                        this.getNextResource()
+                    } else {
+                        setTimeout(() => {
+                            this.minedResourceI = 0;
+                            this.minedResourceJ = this.matrixResources[0].length - 1;
+                            this.moveBlocksForvard();
+                            this.work();
+                        }, 500 / this.workers.length)
+                    }
                 }
             }, 1000 / this.workers.length)
         }
     }
 
-    addWorker(worker){
-        if(!worker.isFree){
+    addWorker(worker) {
+        this.checkMine();
+        if (!worker.isFree) {
             throw new Error("Этот рабочий занят");
         }
         worker.isFree = false;
         this.workers.push(worker);
-        this.showWorkersCount();
+        if (this.workers.length == 1) {
+            this.work();
+        }
+        this.workersCountParagraph.innerText = this.workers.length;
+        this.resourceController.updateWorkersParagraph();
     }
 
-    removeWorker(){
-        if(this.workers.length == 0){
+    removeWorker() {
+        this.checkMine();
+        if (this.workers.length == 0) {
             throw new Error("В шахте нет рабочих");
         }
-        const worker = this.workers.splice(0,1);
+        const worker = this.workers.splice(0, 1);
         worker[0].isFree = true;
-        this.showWorkersCount();
-    }
-
-    showWorkersCount(){
-        const workersCountParagraph = document.getElementById("workers_count");
-        workersCountParagraph.innerText = this.workers.length;
+        this.workersCountParagraph.innerText = this.workers.length;
+        this.resourceController.updateWorkersParagraph();
     }
 
     show(scene) {
+        this.checkMine();
         this.scene = scene;
 
         for (let i = 0; i < this.matrixResources.length; i++) {
@@ -144,4 +195,5 @@ export default class MinematrixResources {
             }
         }
     }
+
 }

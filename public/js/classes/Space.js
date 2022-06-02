@@ -26,6 +26,7 @@ export default class Space {
     }
 
     visibleLocation(i) {
+        this.htmlController.closeModal();
         if (i < 0 || i >= this.locations.length) {
             throw new Error("Неизвесная локация");
         }
@@ -66,7 +67,7 @@ export default class Space {
         const init = () => {
             console.log("init space");
             this.show();
-            this.visibleLocation(1);
+            this.visibleLocation(0);
             const locationButtons = [];
             
             for (let i = 0; i < this.locations.length; i++) {
@@ -78,15 +79,15 @@ export default class Space {
                 locationButtons.push(button);
             }
             this.htmlController.showLocationSelection(locationButtons);
-            this.locations[0].work();
+            // this.locations[0].work();
         }
 
         this.manager = new THREE.LoadingManager();
         this.manager.onLoad = init;
 
         this.gltfLoader = new GLTFLoader(this.manager);
-        this.resourceController = new ResourceController(this.gltfLoader);
         this.htmlController = new HTMLController();
+        this.resourceController = new ResourceController(this.gltfLoader, this.htmlController);
         this.locations = [
             new Mine(this.gltfLoader, this.resourceController, this.htmlController),
             new MainLocation(this.gltfLoader, this.resourceController, this.htmlController),

@@ -8,30 +8,57 @@ export default class Resource{
         this.url = url;
         this.cost = cost;
         this.count = 0;
+        this.countForSale = 0;
         
         const infoContent = document.getElementById("info_content");
 
         const rowDiv = document.createElement("div");
         rowDiv.className = "row";
 
-        this.resourceNumberParagraph = document.createElement("p");
-        this.resourceNumberParagraph.innerText = this.count;
+        this.countParagraph = document.createElement("p");
+        this.countParagraph.innerText = this.count;
 
-        const resourceNameParagraph = document.createElement("p");
-        resourceNameParagraph.innerText = name;
+        const nameParagraph = document.createElement("p");
+        nameParagraph.innerText = name;
 
-        rowDiv.append(this.resourceNumberParagraph);
-        rowDiv.append(resourceNameParagraph);
+        rowDiv.append(this.countParagraph);
+        rowDiv.append(nameParagraph);
 
         infoContent.append(rowDiv);
+
+        this.countForSaleParagraph = document.createElement("p");
+        this.countForSaleParagraph.innerText = this.countForSale;
+
+        this.profitParagraph = document.createElement("p");
+        this.profitParagraph.innerText = this.countForSale * this.cost;
     }
 
-    changeCount(number){
+    addCount(number){
         if(this.count + number < 0){
             throw new Error("Не достаточно ресурсов");
         }
-        this.count+= number;
-        this.resourceNumberParagraph.innerText = this.count;
+        this.count += number;
+        this.countParagraph.innerText = this.count;
+    }
+
+    removeCount(number){
+        if(this.count - number < 0){
+            throw new Error("Не достаточно ресурсов");
+        }
+        this.count -= number;
+        this.countParagraph.innerText = this.count;
+    }
+
+    setCountForSale(number){
+        if(number < 0){
+            throw new Error("Нельзя продавать отрицательное значение ресурсов")
+        }
+        if(number > this.count){
+            throw new Error("Не достаточно ресурсов");
+        }
+        this.countForSale = number;
+        this.countForSaleParagraph.innerText = this.countForSale;
+        this.profitParagraph.innerText = this.countForSale * this.cost;
     }
 
     getObject3D(){

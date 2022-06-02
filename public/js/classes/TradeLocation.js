@@ -71,84 +71,8 @@ export default class TradeLocation {
         const manageResourceButton = document.createElement("button");
         manageResourceButton.innerText = "Управление ресурсами";
         manageResourceButton.onclick = () => {
-            const ModalElements = [];
-            const saleResources = [];
-            for (const resource of this.resourceController.resources) {
-                const saleResource_ = {
-                    resource: resource,
-                    number: 0
-                }
-                saleResources.push(saleResource_);
 
-                const resourceLine = document.createElement("div");
-                resourceLine.className = "row"
-    
-                const numberResource = document.createElement("p");
-                numberResource.innerText = "0";
-
-                const costSaleResource = document.createElement("p");
-                costSaleResource.innerText = "0";
-
-                const nameResource = document.createElement("p");
-                nameResource.innerText = resource.name;
-    
-                const addSaleResourceButton = document.createElement("button");
-                addSaleResourceButton.onclick = () => {
-                    try {
-                        if(saleResource_.number + 1 <= resource.count){
-                            saleResource_.number = saleResource_.number + 1;
-                            numberResource.innerText = saleResource_.number;
-                            costSaleResource.innerText = resource.cost * (saleResource_.number);
-                        }else{
-                            throw new Error("Не достаточно ресурсов");
-                        }
-                    } catch (error) {
-                        this.htmlController.notifyMessage(error.message);
-                    }
-                };
-                addSaleResourceButton.innerText = "+";
-    
-                const removeSaleResourceButton = document.createElement("button");
-                removeSaleResourceButton.onclick = () => {
-                    try {
-                        if(saleResource_.number - 1 >= 0){
-                            saleResource_.number = saleResource_.number - 1;
-                            numberResource.innerText = saleResource_.number;
-                            costSaleResource.innerText = resource.cost * (saleResource_.number);
-                        }else{
-                            throw new Error("Нельзя продавать отрицательное значение ресурсов");
-                        }
-                    } catch (error) {
-                        this.htmlController.notifyMessage(error.message);
-                    }
-                };
-                removeSaleResourceButton.innerText = "-";
-    
-                resourceLine.append(numberResource);
-                resourceLine.append(nameResource);
-                resourceLine.append(addSaleResourceButton);
-                resourceLine.append(removeSaleResourceButton);
-                resourceLine.append(costSaleResource);
-                ModalElements.push(resourceLine);
-
-            }
-            const saleButton = document.createElement("button");
-            saleButton.innerText = "продать ресурсы";
-            saleButton.onclick = () => {
-                try{
-                    for (const saleResource_ of saleResources) {
-                        saleResource_.resource.changeCount(-saleResource_.number);
-                        this.resourceController.addMoney(saleResource_.resource.cost * saleResource_.number);
-                        saleResource_.number = 0;
-                        // сделано убого
-                    }
-                }catch(error){
-                    this.htmlController.notifyMessage(error.message);
-                }
-            }
-            ModalElements.push(saleButton);
-
-            this.htmlController.openModal("Управление ресурсами", ModalElements);
+            this.htmlController.openModal("Управление ресурсами", this.resourceController.showSeleInfo());
         }
 
         this.htmlController.showLocationContent([manageResourceButton]);

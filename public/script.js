@@ -3,7 +3,7 @@ import { OrbitControls } from './jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 import * as SkeletonUtils from './jsm/utils/SkeletonUtils.js';
 import Stats from './jsm/libs/stats.module.js'
-import old_hoist from './js/objects3d/hoist.js'
+import exportModel from './js/objects3d/objectConstructor.js'
 
 function random(a, b) {
     if (a > b) {
@@ -39,32 +39,27 @@ const scene = new THREE.Scene();
 // spotLight.shadow.mapSize.height = 1024;
 // scene.add( spotLight );
 
-const dirLight = new THREE.DirectionalLight( 0x55505a, 1 );
-dirLight.position.set( 0, 100, 40 );
+const dirLight = new THREE.DirectionalLight(0x55505a, 1);
+dirLight.position.set(0, 100, 40);
 dirLight.castShadow = true;
 dirLight.shadow.camera.near = 1;
 dirLight.shadow.camera.far = 10;
 
 dirLight.shadow.camera.right = 1;
 dirLight.shadow.camera.left = - 1;
-dirLight.shadow.camera.top	= 1;
+dirLight.shadow.camera.top = 1;
 dirLight.shadow.camera.bottom = - 1;
 
 dirLight.shadow.mapSize.width = 1024;
 dirLight.shadow.mapSize.height = 1024;
-scene.add( dirLight );
+scene.add(dirLight);
 
 let camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000)
-camera.position.set(0, 0, 100);
-// camera.rotation.set(-0.51,0,0.12);
+camera.position.set(0, 20, 50);
 
 const light = new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1);
 scene.add(light);
 
-
-// const startButton = document.getElementById("menu_start_button");
-// const menuLoading = document.getElementById("menu_loading");
-// const menu = document.getElementById("menu");
 
 function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     const localPrefix = isLast ? '└─' : '├─';
@@ -78,73 +73,71 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     return lines;
 }
 
-let hoist;
+const geometry = new THREE.BoxGeometry(1.7, 1, 3.1);
+const material = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: false });
+
+
+const mesh = new THREE.Mesh(geometry, material);
+// mesh.position.set(-1.2, 0.8, -1.9);
+
+let minecart;
 const mixers = [];
 
-function init() {
+const times = [0, 2];
+const values2 = [
+    0, 0, 0,
+    0, 0, 40
+];
 
+function init() {
+    const minecartMove_KF = new THREE.VectorKeyframeTrack('.position', times, values2);
+    const minecartMove_animation = new THREE.AnimationClip('.position_animation', -1, [minecartMove_KF]);
+    const mixer = new THREE.AnimationMixer(minecart);
+    mixers.push(mixer);
+    const action = mixer.clipAction(minecartMove_animation);
+
+    action.setLoop(THREE.LoopOnce);
+    action.clampWhenFinished = false;
+
+    action.play();
+    mixer.addEventListener('finished', function (e) {
+        const heap = minecart.getObjectByName("heap"); 
+        console.log(heap);
+        minecart.remove(heap);
+    });
 }
 
 const manager = new THREE.LoadingManager();
 manager.onLoad = init;
 const gltfLoader = new GLTFLoader(manager);
-// const url = '/models/miner/scene.gltf';
-// const location = [
-//     {
-//         name: "Main",
-//         url: "Galerie.glb"
-//     }
-// ]
-gltfLoader.load(`/models/hoist_full/hoist.glb`, (gltf) => {
-    hoist = gltf.scene;
-    // hoist.name = 'hoist'
-    for (const animation_ of gltf.animations) {
-        const objectName = animation_.name.split(".")[0];
-        const animatedObject = hoist.getObjectByName(objectName)
-        const mixer = new THREE.AnimationMixer(animatedObject);
-        mixers.push(mixer);
-        const action = mixer.clipAction(animation_);
-        action.play();
-    }
 
-    scene.add(hoist);
+gltfLoader.load(`/models/mine/minecart.glb`, (gltf) => {
+    minecart = gltf.scene;
+    minecart.name = 'minecart'
+    console.log("minecart", minecart)
+    // for (const animation_ of gltf.animations) {
+    //     const objectName = animation_.name.split(".")[0];
+    //     const animatedObject = hoist.getObjectByName(objectName)
+    //     const mixer = new THREE.AnimationMixer(animatedObject);
+    //     mixers.push(mixer);
+    //     const action = mixer.clipAction(animation_);
+    //     action.play();
+    // }
+
+    scene.add(minecart);
     // console.log(dumpObject(hoist).join('\n'));
 });
-
-// const blocks = [
-//     {
-//         name: "Down drum",
-//         url: "down_drum.glb"
-//     },
-//     {
-//         name: "Upper drum",
-//         url: "upper_drum.glb"
-//     },
-//     {
-//         name: "Hoist drumless",
-//         url: "hoist_drumless.glb"
-//     },
-// ];
-
-const geometry = new THREE.SphereGeometry(300, 30, 30);
-const material = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+gltfLoader.load(`/models/mine/heap2.glb`, (gltf) => {
+    const root = gltf.scene;
+    root.name = 'heap'
 
 
-const mesh = new THREE.Mesh(geometry, material);
-// const euler = new THREE.Euler(0, 0, 0, 'XYZ');
-// const quaternion = new THREE.Quaternion();
-// quaternion.setFromEuler(euler);
-// mesh.applyQuaternion(quaternion);
+    minecart.add(root);
+});
 
-// const times = [0, 1, 2, 3, 4];
 
-// const values2 = [
-//     0, 0, 0,
-//     -50, 0, 0,
-//     -100, 0, 0,
-//     -50, 0, 0,
-//     0, 0, 0
-// ];
+
+
 
 // const values = [
 //     0, 0, 1, 0,
@@ -165,6 +158,8 @@ const mesh = new THREE.Mesh(geometry, material);
 // const valuesO = [0, 0, 0, 2, 2, 2, 0, 0, 0];
 
 const clock = new THREE.Clock();
+
+
 // const rotationZ_KF = new THREE.QuaternionKeyframeTrack(
 //     '.quaternion',
 //     times,

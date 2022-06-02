@@ -61,50 +61,54 @@ export default class Global {
         }
         this.showInfo();
     }
+
+    showModal() {
+        const paragraph = document.createElement("p");
+        paragraph.innerText = "Рабочих всего";
+
+        const workersParagraph = document.createElement("p");
+        workersParagraph.innerText = this.resourceController.getWorkersInfo();
+
+        const hireWorkerButton = document.createElement("button");
+        hireWorkerButton.onclick = () => {
+            try {
+                const worker = new Worker();
+                this.resourceController.removeMoney(worker.cost);
+                this.resourceController.addWorker(worker);
+                workersParagraph.innerText = this.resourceController.getWorkersInfo();
+            } catch (error) {
+                this.htmlController.notifyMessage(error.message);
+            }
+        }
+        hireWorkerButton.innerText = "Нанять рабочего";
+
+        const dismissWorkerButton = document.createElement("button");
+        dismissWorkerButton.onclick = () => {
+            try {
+                this.resourceController.removeWorker();
+                workersParagraph.innerText = this.resourceController.getWorkersInfo();
+            } catch (error) {
+                this.htmlController.notifyMessage(error.message);
+            }
+        }
+        dismissWorkerButton.innerText = "Уволить рабочего";
+
+        this.htmlController.openModal(
+            "Обработка ресурсов",
+            [
+                paragraph,
+                workersParagraph,
+                hireWorkerButton,
+                dismissWorkerButton
+            ]
+        )
+    }
     
     showInfo() {
         const manageWorkerButton = document.createElement("button");
-        manageWorkerButton.innerText = "Управление рабочими";
+        manageWorkerButton.innerText = "Обработка ресурсов";
         manageWorkerButton.onclick = () => {
-            const paragraph = document.createElement("p");
-            paragraph.innerText = "Рабочих всего";
-
-            const workersParagraph = document.createElement("p");
-            workersParagraph.innerText = this.resourceController.getWorkersInfo();
-
-            const hireWorkerButton = document.createElement("button");
-            hireWorkerButton.onclick = () => {
-                try {
-                    const worker = new Worker();
-                    this.resourceController.removeMoney(worker.cost);
-                    this.resourceController.addWorker(worker);
-                    workersParagraph.innerText = this.resourceController.getWorkersInfo();
-                } catch (error) {
-                    this.htmlController.notifyMessage(error.message);
-                }
-            }
-            hireWorkerButton.innerText = "Нанять рабочего";
-
-            const dismissWorkerButton = document.createElement("button");
-            dismissWorkerButton.onclick = () => {
-                try {
-                    this.resourceController.removeWorker();
-                    workersParagraph.innerText = this.resourceController.getWorkersInfo();
-                } catch (error) {
-                    this.htmlController.notifyMessage(error.message);
-                }
-            }
-            dismissWorkerButton.innerText = "Уволить рабочего";
-
-            this.htmlController.openModal(
-                "Управление рабочими",
-                [
-                    paragraph,
-                    workersParagraph,
-                    hireWorkerButton,
-                    dismissWorkerButton
-                ]
-            )
+            this.showModal();
         }
 
         this.htmlController.showLocationContent([manageWorkerButton]);
