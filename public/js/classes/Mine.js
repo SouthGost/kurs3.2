@@ -84,6 +84,9 @@ export default class Mine {
 
 
     visible(renderer, scene, camera, mixers) {
+        const header = document.getElementById("header");
+        header.style.color = "white";
+
         this.scene = scene;
         renderer.setClearColor(0x000000);
         camera.position.set(10, 10, 10);

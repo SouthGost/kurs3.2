@@ -2,11 +2,12 @@ import * as SkeletonUtils from '../../jsm/utils/SkeletonUtils.js';
 
 export default class Resource{
     
-    constructor(name, name2, url, cost){
+    constructor(name, name2, url, cost, levelsProbabilitys){
         this.name = name;
         this.name2 = name2;
         this.url = url;
         this.cost = cost;
+        this.levelsProbabilitys = levelsProbabilitys;
         this.count = 0;
         this.countForSale = 0;
         
@@ -35,7 +36,7 @@ export default class Resource{
 
     addCount(number){
         if(this.count + number < 0){
-            throw new Error("Не достаточно ресурсов");
+            throw new Error("Недостаточно ресурсов");
         }
         this.count += number;
         this.countParagraph.innerText = this.count;
@@ -43,7 +44,7 @@ export default class Resource{
 
     removeCount(number){
         if(this.count - number < 0){
-            throw new Error("Не достаточно ресурсов");
+            throw new Error("Недостаточно ресурсов");
         }
         this.count -= number;
         this.countParagraph.innerText = this.count;
@@ -54,11 +55,15 @@ export default class Resource{
             throw new Error("Нельзя продавать отрицательное значение ресурсов")
         }
         if(number > this.count){
-            throw new Error("Не достаточно ресурсов");
+            throw new Error("Недостаточно ресурсов");
         }
         this.countForSale = number;
         this.countForSaleParagraph.innerText = this.countForSale;
         this.profitParagraph.innerText = this.countForSale * this.cost;
+    }
+
+    getProbability(level){
+        return this.levelsProbabilitys[level];
     }
 
     getObject3D(){

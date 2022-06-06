@@ -45,6 +45,9 @@ export default class TradeLocation {
     }
 
     visible(renderer, scene, camera, mixers) {
+        const header = document.getElementById("header");
+        header.style.color = "white";
+
         renderer.setClearColor(0x00FFFF);
         camera.position.set(0, 40, 15);
         camera.lookAt(0, 0, 0);

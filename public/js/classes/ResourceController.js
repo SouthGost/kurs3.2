@@ -1,27 +1,28 @@
 import Resource from "./Resource.js";
 import Worker from "./Worker.js";
 import Money from "./Money.js";
-
+import resourceArray from "./ResourceArray.js";
 
 export default class ResourceController {
 
     constructor(gltfLoader, htmlController) {
         this.htmlController = htmlController;
         this.money = new Money(15000);
-        this.resources = [
-            new Resource("Земля", "ground", "ground.glb", -20),
-            new Resource("Обогащенная земля", "jewel_ground", "jewel_ground.glb", 50),
-            new Resource("Гравий", "gravy", "gravy.glb", -10),
-            new Resource("Обогащенный гравий", "jewel_gravy", "jewel_gravy.glb", 200),
-        ];
+        // this.resources = [
+        //     new Resource("Земля", "ground", "ground.glb", -20),
+        //     new Resource("Обогащенная земля", "jewel_ground", "jewel_ground.glb", 50),
+        //     new Resource("Гравий", "gravy", "gravy.glb", -10),
+        //     new Resource("Обогащенный гравий", "jewel_gravy", "jewel_gravy.glb", 200),
+        // ];
+        this.resources = resourceArray;
         // this.choosedResourcesCountForSele = [];
         // for(let i = 0; i < this.resources.length; i++){
         //     this.choosedResourcesCountForSele[i] = 0;
         // } 
         this.levelsProbability = [
-            [0.4, 0.2, 0.3, 0.1],
-            [0.2, 0.1, 0.5, 0.2],
-            [0, 0.05, 0.5, 0.45],
+            [0.4, 0.2, 0.3, 0.1, 0],
+            [0.2, 0.1, 0.5, 0.2, 0],
+            [0, 0.05, 0.5, 0.45, 0],
         ];
         this.workers = [
             new Worker(),
@@ -96,8 +97,12 @@ export default class ResourceController {
         let randomNumber = Math.random();
         let i = 0;
         let summ = 0;
-        while (randomNumber > summ + this.levelsProbability[level][i] && i < this.levelsProbability[level].length - 1) {
-            summ += this.levelsProbability[level][i];
+        // while (randomNumber > summ + this.levelsProbability[level][i] && i < this.levelsProbability[level].length - 1) {
+        //     summ += this.levelsProbability[level][i];
+        //     i++;
+        // }
+        while (randomNumber > summ + this.resources[i].getProbability(level) && i < this.resources.length - 1) {
+            summ += this.resources[i].getProbability(level);
             i++;
         }
         return this.resources[i];

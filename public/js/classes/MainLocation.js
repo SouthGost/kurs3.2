@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import Worker from './Worker.js';
+import ResourceImprove from "./ResourceImprove.js";
 
-export default class Global {
+export default class MainLocation {
 
     constructor(gltfLoader, resourceController, htmlController) {
         this.name = "База";
         this.resourceController = resourceController;
         this.htmlController = htmlController;
+        this.resourceImprove = new ResourceImprove(htmlController);
 
         const dirLight = new THREE.DirectionalLight(0xFFFFE0, 0.4);
         dirLight.position.set(0, 100, 40);
@@ -46,6 +48,9 @@ export default class Global {
     }
 
     visible(renderer, scene, camera, mixers) {
+        const header = document.getElementById("header");
+        header.style.color = "white";
+
         renderer.setClearColor(0x00FFFF);
         camera.position.set(-150, 80, 15);
         camera.lookAt(0, 0, 0);
@@ -63,44 +68,9 @@ export default class Global {
     }
 
     showModal() {
-        const paragraph = document.createElement("p");
-        paragraph.innerText = "Рабочих всего";
-
-        const workersParagraph = document.createElement("p");
-        workersParagraph.innerText = this.resourceController.getWorkersInfo();
-
-        const hireWorkerButton = document.createElement("button");
-        hireWorkerButton.onclick = () => {
-            try {
-                const worker = new Worker();
-                this.resourceController.removeMoney(worker.cost);
-                this.resourceController.addWorker(worker);
-                workersParagraph.innerText = this.resourceController.getWorkersInfo();
-            } catch (error) {
-                this.htmlController.notifyMessage(error.message);
-            }
-        }
-        hireWorkerButton.innerText = "Нанять рабочего";
-
-        const dismissWorkerButton = document.createElement("button");
-        dismissWorkerButton.onclick = () => {
-            try {
-                this.resourceController.removeWorker();
-                workersParagraph.innerText = this.resourceController.getWorkersInfo();
-            } catch (error) {
-                this.htmlController.notifyMessage(error.message);
-            }
-        }
-        dismissWorkerButton.innerText = "Уволить рабочего";
-
         this.htmlController.openModal(
             "Обработка ресурсов",
-            [
-                paragraph,
-                workersParagraph,
-                hireWorkerButton,
-                dismissWorkerButton
-            ]
+            this.resourceImprove.showImproveInfo(),
         )
     }
     

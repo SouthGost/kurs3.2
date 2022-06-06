@@ -42,7 +42,7 @@ export default class MinematrixResources {
 
     checkMine() {
         if (!this.isOpen) {
-            throw new Error("Шахта не открыта");
+            throw new Error("Шахта неоткрыта");
         }
     }
 

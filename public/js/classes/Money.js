@@ -27,7 +27,7 @@ export default class Money{
 
     remove(value){
         if(this.value - value < 0){
-            throw new Error("Не достаточно денег");
+            throw new Error("Недостаточно денег");
         }
         this.value -= value;
         this.showValue();
