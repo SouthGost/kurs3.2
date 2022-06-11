@@ -12,17 +12,21 @@ export default class Mine {
         this.resourceController = resourceController;
         this.htmlController = htmlController;
         this.heaps = [];
-        this.minecartAction = undefined;
         this.minecart = undefined;
+        this.minecartAction = undefined;
+        this.miner = new THREE.Object3D();
+        this.miner.name = "miner";
+        this.handAction = undefined;
         this.scene = undefined;
         this.currentMineShowId = 0;
         this.mineMatrixs = [
-            new MineMatrix(this.resourceController, 0, 100, true),
-            new MineMatrix(this.resourceController, 1, 500, false, 1000),
-            new MineMatrix(this.resourceController, 2, 1000, false, 10000),
+            new MineMatrix(this.resourceController, this.htmlController, 0, 100, true),
+            new MineMatrix(this.resourceController, this.htmlController, 1, 500, false, 10000),
+            new MineMatrix(this.resourceController, this.htmlController, 2, 1000, false, 100000),
         ];
         for (const mineMatrix of this.mineMatrixs) {
             mineMatrix.setHeaps(this.heaps);
+            mineMatrix.setMiner(this.miner);
         }
         this.objects3d = [
             new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1),
@@ -33,10 +37,33 @@ export default class Mine {
             root.position.set(6, -2, 26);
             this.objects3d.push(root);
         });
-        gltfLoader.load(`/models/miner/scene.gltf`, (gltf) => {
+        gltfLoader.load(`/models/mine/miners_body.glb`, (gltf) => {
             const root = gltf.scene;
-            root.position.set(0, 0, 4);
-            this.objects3d.push(root);
+            root.position.set(2, 0, 6);
+            this.miner.add(root);
+            // this.objects3d.push(root);
+        });
+        gltfLoader.load(`/models/mine/miners_hand.glb`, (gltf) => {
+            const root = gltf.scene;
+            root.name = "hand"
+            root.position.set(2, 3, 4.75);
+
+            const times = [0, 1];
+            const values = [
+                0.1, 0, 0, 0,             //0
+                0.1, 0, 0, 1 * Math.PI/2, //1
+            ];
+            const handRotationKF = new THREE.QuaternionKeyframeTrack('hand.quaternion', times, values);
+            const handRotationAnimation = new THREE.AnimationClip('handm.rotation_animation', -1, [handRotationKF]);
+            const mixer = new THREE.AnimationMixer(root);
+            this.mixers.push(mixer);
+            this.handAction = mixer.clipAction(handRotationAnimation);
+
+            // this.objects3d.push(root);
+            this.miner.add(root);
+            for (const mineMatrix of this.mineMatrixs) {
+                mineMatrix.setHandAction(this.handAction);
+            }
         });
         gltfLoader.load(`/models/mine/minecart.glb`, (gltf) => {
             this.minecart = gltf.scene;
@@ -58,7 +85,7 @@ export default class Mine {
 
             mixer.addEventListener('finished', function (e) {
                 const heap = gltf.scene.getObjectByName("heap");
-                if(heap != undefined) {
+                if (heap != undefined) {
                     gltf.scene.remove(heap);
                 }
             });
@@ -84,8 +111,9 @@ export default class Mine {
 
 
     visible(renderer, scene, camera, mixers) {
+        this.htmlController.setBackgroundColor("rgba(255, 255, 255, 0.37)");
         const header = document.getElementById("header");
-        header.style.color = "white";
+        // header.style.color = "white";
 
         this.scene = scene;
         renderer.setClearColor(0x000000);
@@ -98,6 +126,10 @@ export default class Mine {
             mixers.push(mixer);
         }
         this.mineMatrixs[this.currentMineShowId].show(scene);
+        if (this.mineMatrixs[this.currentMineShowId].workers.length > 0) {
+            this.scene.add(this.miner);
+            this.handAction.play();
+        }
         this.showInfo();
     }
 
@@ -106,9 +138,17 @@ export default class Mine {
             if (index != this.currentMineShowId) {
                 this.mineMatrixs[this.currentMineShowId].stopShow();
                 this.minecartAction.stop();
+                if(this.scene.getObjectByName("miner") != undefined){
+                    this.scene.remove(this.miner);
+                }
+                this.handAction.stop();
                 const heap = this.minecart.getObjectByName("heap");
                 this.minecart.remove(heap);
                 this.mineMatrixs[index].show(this.scene);
+                if (this.mineMatrixs[index].workers.length > 0) {
+                    this.scene.add(this.miner);
+                    this.handAction.play();
+                }
                 this.currentMineShowId = index;
             }
         } catch (error) {
@@ -127,11 +167,11 @@ export default class Mine {
         elements.push(this.resourceController.workersParagraph);
 
         const hireWorkerButton = document.createElement("button");
-        hireWorkerButton.innerText = "Нанять рабочего";
+        hireWorkerButton.innerText = "Нанять рабочего 200 ₽ в месяц";
         hireWorkerButton.onclick = () => {
             try {
                 const worker = new Worker();
-                this.resourceController.removeMoney(worker.cost);
+                // this.resourceController.removeMoney(worker.cost);
                 this.resourceController.addWorker(worker);
             } catch (error) {
                 this.htmlController.notifyMessage(error.message);
@@ -140,10 +180,11 @@ export default class Mine {
         elements.push(hireWorkerButton);
 
         const dismissWorkerButton = document.createElement("button");
-        dismissWorkerButton.innerText = "Уволить рабочего";
+        dismissWorkerButton.innerText = "Уволить рабочего 3 месячных зарплаты";
         dismissWorkerButton.onclick = () => {
             try {
-                this.resourceController.removeWorker();
+                const worker = this.resourceController.removeWorker();
+                this.resourceController.removeMoney(worker.salary * 3);
             } catch (error) {
                 this.htmlController.notifyMessage(error.message);
             }
@@ -250,6 +291,7 @@ export default class Mine {
 
     hide() {
         this.scene = undefined;
+        this.handAction.stop();
         this.mineMatrixs[this.currentMineShowId].stopShow();
     }
 

@@ -48,7 +48,6 @@ const blocks = [
 ];
 
 
-
 gltfLoader.load(`/models/${blocks[0].url}`, (gltf) => {
     const root = gltf.scene;
     // console.log("drum",root)

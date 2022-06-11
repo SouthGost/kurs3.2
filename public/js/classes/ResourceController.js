@@ -1,29 +1,19 @@
-import Resource from "./Resource.js";
+import * as THREE from 'three';
 import Worker from "./Worker.js";
 import Money from "./Money.js";
 import resourceArray from "./ResourceArray.js";
+import Timer from "./Timer.js";
 
 export default class ResourceController {
 
     constructor(gltfLoader, htmlController) {
         this.htmlController = htmlController;
-        this.money = new Money(15000);
-        // this.resources = [
-        //     new Resource("Земля", "ground", "ground.glb", -20),
-        //     new Resource("Обогащенная земля", "jewel_ground", "jewel_ground.glb", 50),
-        //     new Resource("Гравий", "gravy", "gravy.glb", -10),
-        //     new Resource("Обогащенный гравий", "jewel_gravy", "jewel_gravy.glb", 200),
-        // ];
+        this.money = new Money(1000);
+        this.month = 1;
         this.resources = resourceArray;
-        // this.choosedResourcesCountForSele = [];
-        // for(let i = 0; i < this.resources.length; i++){
-        //     this.choosedResourcesCountForSele[i] = 0;
-        // } 
-        this.levelsProbability = [
-            [0.4, 0.2, 0.3, 0.1, 0],
-            [0.2, 0.1, 0.5, 0.2, 0],
-            [0, 0.05, 0.5, 0.45, 0],
-        ];
+        this.resourcesCount = 0;
+        this.maxResourcesCount = 500;
+        this.isLive = true;
         this.workers = [
             new Worker(),
             new Worker(),
@@ -31,9 +21,73 @@ export default class ResourceController {
         this.workersParagraph = document.createElement("p");
         this.updateWorkersParagraph();
         for (let i = 0; i < this.resources.length; i++) {
-            gltfLoader.load(`/models/mine/block/${this.resources[i].url}`, (gltf) => {
-                this.resources[i].scene = gltf.scene;
-            });
+            if (this.resources[i].url != null) {
+                gltfLoader.load(`/models/mine/block/${this.resources[i].url}`, (gltf) => {
+                    this.resources[i].scene = gltf.scene;
+                });
+            } else {
+                this.resources[i].scene = new THREE.Object3D();;
+            }
+        }
+        // this.startNewMonth();
+    }
+
+    startNewMonth() {
+        const timeLeftParagraph = document.getElementById("time_left");
+        const timer = new Timer(() => {
+            try {
+                let monthExpenses = 0;
+                for (const worker of this.workers) {
+                    this.money.remove(worker.salary)
+                    monthExpenses += worker.salary;
+                }
+                this.htmlController.notifyMessage(`На зарплаты потраченно ${monthExpenses}`);
+                // throw new Error();
+                this.month++;
+                const monthParagraph = document.getElementById("month");
+                monthParagraph.innerText = this.month;
+                this.startNewMonth()
+            } catch (error) {
+                console.log(error);
+                this.lose();
+            }
+        }, 150_000);
+
+        timeLeftParagraph.innerHTML = "";
+        timeLeftParagraph.append(timer.paragraph);
+        timer.start();
+    }
+
+    lose() {
+        this.isLive = false;
+        this.money.remove(this.money.value);
+        const loseParagraph = document.createElement("p");
+        loseParagraph.innerText = `Ваш результат ${this.month} месяц(ев).`
+        this.htmlController.openModal("Игра закончена", [loseParagraph], false);
+    }
+
+    isMaxResources() {
+        if (this.maxResourcesCount <= this.resourcesCount) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //кучу
+    addResource(resource, count) {
+        if (this.maxResourcesCount > this.resourcesCount) {
+            resource.addCount(count);
+            this.resourcesCount += count;
+        } else {
+            throw new Error("Склад переполнен");
+        }
+
+    }
+
+    removeResource(resource, count) {
+        if (count > 0) {
+            resource.removeCount(count);
+            this.resourcesCount -= count;
         }
     }
 
@@ -53,8 +107,9 @@ export default class ResourceController {
         if (removedWorkerId == -1) {
             throw new Error("Нет свободных рабочих, которых можно уволить");
         }
-        this.workers.splice(removedWorkerId, 1);
+        const worker = this.workers.splice(removedWorkerId, 1)[0];
         this.updateWorkersParagraph();
+        return worker;
     }
 
     addMoney(value) {
@@ -89,7 +144,7 @@ export default class ResourceController {
         return count;
     }
 
-    updateWorkersParagraph(){
+    updateWorkersParagraph() {
         this.workersParagraph.innerText = `${this.workers.length} (${this.getFreeWorkersCount()})`;
     }
 
@@ -97,10 +152,6 @@ export default class ResourceController {
         let randomNumber = Math.random();
         let i = 0;
         let summ = 0;
-        // while (randomNumber > summ + this.levelsProbability[level][i] && i < this.levelsProbability[level].length - 1) {
-        //     summ += this.levelsProbability[level][i];
-        //     i++;
-        // }
         while (randomNumber > summ + this.resources[i].getProbability(level) && i < this.resources.length - 1) {
             summ += this.resources[i].getProbability(level);
             i++;
@@ -108,74 +159,96 @@ export default class ResourceController {
         return this.resources[i];
     }
 
-    showSeleInfo() {
+    seleTable() {
         const elements = [];
         const table = document.createElement("table");
+        const headerTr = document.createElement("tr");
+
+        const tdCountHeader = document.createElement("td");
+        const paragraphCountHeader = document.createElement("p");
+        paragraphCountHeader.innerText = "Добыто";
+        tdCountHeader.append(paragraphCountHeader);
+
+        const tdNameResourceHeader = document.createElement("td");
+        const paragraphNameResourceHeader = document.createElement("p");
+        paragraphNameResourceHeader.innerText = "Название";
+        tdNameResourceHeader.append(paragraphNameResourceHeader);
+
+        const tdCostHeader = document.createElement("td");
+        const paragraphCostHeader = document.createElement("p");
+        paragraphCostHeader.innerText = "Цена";
+        tdCostHeader.append(paragraphCostHeader);
+
+        const tdCountForSaleHeader = document.createElement("td");
+        const paragraphCountForSaleHeader = document.createElement("p");
+        paragraphCountForSaleHeader.innerText = "На продажу";
+        tdCountForSaleHeader.append(paragraphCountForSaleHeader);
+
+        const tdProfitHeader = document.createElement("td");
+        const paragraphProfitHeader = document.createElement("p");
+        paragraphProfitHeader.innerText = "В сумме";
+        tdProfitHeader.append(paragraphProfitHeader);
+
+        headerTr.append(tdCountHeader);
+        headerTr.append(tdNameResourceHeader);
+        headerTr.append(tdCostHeader);
+        headerTr.append(tdCountForSaleHeader);
+        headerTr.append(tdProfitHeader);
+
+        table.append(headerTr);
+
         for (const resource of this.resources) {
-            resource.setCountForSale(0);
+            resource.countForSaleInput.value = 0;
 
             const tr = document.createElement("tr");
 
-            const tdCountForSale = document.createElement("td");
-            tdCountForSale.append(resource.countForSaleParagraph);
-            // resourceLine.className = "resource_sale"
+            const tdCount = document.createElement("td");
+            tdCount.append(resource.countParagraph);
 
+
+            const tdNameResource = document.createElement("td");
             const nameResource = document.createElement("p");
             nameResource.innerText = resource.name;
-            const tdNameResource = document.createElement("td");
             tdNameResource.append(nameResource);
 
-            const addSaleResourceButton = document.createElement("button");
-            addSaleResourceButton.onclick = () => {
-                try {
-                    resource.setCountForSale(resource.countForSale + 1);
-                } catch (error) {
-                    this.htmlController.notifyMessage(error.message);
-                }
-            }
-            addSaleResourceButton.innerText = "+";
-            const tdAddSaleResourceButton = document.createElement("td");
-            tdAddSaleResourceButton.append(addSaleResourceButton);
+            const tdCost = document.createElement("td");
+            const costParagraph = document.createElement("p");
+            costParagraph.innerText = resource.cost;
+            tdCost.append(costParagraph);
 
-            const removeSaleResourceButton = document.createElement("button");
-            removeSaleResourceButton.onclick = () => {
-                try {
-                    resource.setCountForSale(resource.countForSale - 1);
-                } catch (error) {
-                    this.htmlController.notifyMessage(error.message);
-                }
-            }
-            removeSaleResourceButton.innerText = "-";
-            const tdRemoveSaleResourceButton = document.createElement("td");
-            tdRemoveSaleResourceButton.append(removeSaleResourceButton);
+            const tdCountForSale = document.createElement("td");
+            tdCountForSale.append(resource.countForSaleInput);//  countForSaleInput  
 
             const tdProfit = document.createElement("td");
             tdProfit.append(resource.profitParagraph);
 
-            tr.append(tdCountForSale);
+            tr.append(tdCount)
             tr.append(tdNameResource);
-            tr.append(tdAddSaleResourceButton);
-            tr.append(tdRemoveSaleResourceButton);
+            tr.append(tdCost);
+
+            tr.append(tdCountForSale);
             tr.append(tdProfit);
             table.append(tr);
         }
-        const saleButton = document.createElement("button");
-        saleButton.innerText = "Продать ресурсы";
-        saleButton.onclick = () => {
-            try {
-                for (const resource of this.resources) {
-                    resource.removeCount(resource.countForSale);
-                    this.addMoney(resource.cost * resource.countForSale);
-                    resource.setCountForSale(0);
-                }
-            } catch (error) {
-                this.htmlController.notifyMessage(error.message);
-            }
-        }
+        // const saleButton = document.createElement("button");
+        // saleButton.innerText = "Продать ресурсы";
+        // saleButton.onclick = () => {
+        //     try {
+        //         for (const resource of this.resources) {
+        //             if(resource.countForSale != 0){
+        //                 this.removeResource(resource, resource.countForSale);
+        //                 this.addMoney(resource.cost * resource.countForSale);
+        //                 resource.clearCountForSale();
+        //             }
+        //         }
+        //     } catch (error) {
+        //         this.htmlController.notifyMessage(error.message);
+        //     }
+        // }
         elements.push(table);
-        elements.push(saleButton);
+        // elements.push(saleButton);
 
-        return elements;
+        return table;//elements
     }
 
 

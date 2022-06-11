@@ -57,6 +57,7 @@ export default class Space {
         this.canvas.setAttribute('height', this.height + "");
         
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true });
+        this.renderer.shadowMap.enabled = true;
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(90, this.width / this.height, 1, 1000)
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -67,7 +68,7 @@ export default class Space {
         const init = () => {
             console.log("init space");
             this.show();
-            this.visibleLocation(0);
+            this.visibleLocation(1);
             const locationButtons = [];
             
             for (let i = 0; i < this.locations.length; i++) {
@@ -79,6 +80,46 @@ export default class Space {
                 locationButtons.push(button);
             }
             this.htmlController.showLocationSelection(locationButtons);
+            
+            const text3Paragraph = document.createElement("p");
+            text3Paragraph.innerText = `В данной локации вы можете нанимать и увольнять рабочих, открывать новые шахты и распределять среди них рабочих.`;
+            
+            const start3Button = document.createElement("button");
+            start3Button.innerText = "Начать";
+            start3Button.onclick = () => {
+                this.htmlController.closeModal();
+                this.resourceController.startNewMonth();
+            }
+            
+            const text2Paragraph = document.createElement("p");
+            text2Paragraph.innerText = `В данной локации вы можете продавать и утелезировать ресурсы. Также тут доступна панель управления обработкой ресурсов.`;
+            
+            const start2Button = document.createElement("button");
+            start2Button.innerText = "Далее";
+            start2Button.onclick = () => {
+                this.visibleLocation(0);
+                this.htmlController.openModal("Локация шахта",[text3Paragraph, start3Button], false);
+            }
+
+            const text1Paragraph = document.createElement("p");
+            text1Paragraph.innerText = `Приветствуем вас в игре.
+            Целью данной игры является достижение экономического баланса по обеспечению работников заработной платой,
+            формирование резервных фондов для покрывания затрат на собственные нужды: утилизация отходов, логистика.
+            Сделайте так, чтоб шахта проработала несколько веков!`;
+
+            const start1Button = document.createElement("button");
+            start1Button.innerText = "Далее";
+            start1Button.onclick = () => {
+                this.htmlController.openModal("Локация фабрика",[text2Paragraph, start2Button], false);
+            }
+
+            //this.htmlController.openModal("Симулятор руководителя шахтой",[text1Paragraph, start1Button], false);
+            this.resourceController.startNewMonth() // убрать
+
+
+
+
+
             // this.locations[0].work();
         }
 
@@ -90,7 +131,7 @@ export default class Space {
         this.resourceController = new ResourceController(this.gltfLoader, this.htmlController);
         this.locations = [
             new Mine(this.gltfLoader, this.resourceController, this.htmlController),
-            new MainLocation(this.gltfLoader, this.resourceController, this.htmlController),
+            // new MainLocation(this.gltfLoader, this.resourceController, this.htmlController),
             new TradeLocation(this.gltfLoader, this.resourceController, this.htmlController),
         ];
 

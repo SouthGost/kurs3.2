@@ -5,10 +5,17 @@ import Content from "./Content.js";
 export default class HTMLController{
 
     constructor(){
+        this.header = document.getElementById("header");
         this.modal = new Modal();
         this.message = new Message();
         this.locationSelection = new Content("location_selection");
         this.locationContent = new Content("location_content");
+
+    }
+
+    setBackgroundColor(color){
+        this.header.style.backgroundColor = color;
+        this.message.setBackgroundColor(color);
     }
 
     showLocationContent(elements){
@@ -23,8 +30,8 @@ export default class HTMLController{
         this.message.notify(text);
     }
 
-    openModal(name, HTMLElements){
-        this.modal.open(name, HTMLElements);
+    openModal(name, HTMLElements, isCanСlose = true){
+        this.modal.open(name, HTMLElements , isCanСlose);
     }
 
     closeModal(){

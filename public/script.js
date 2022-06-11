@@ -60,7 +60,6 @@ camera.position.set(0, 20, 50);
 const light = new THREE.HemisphereLight(0xFFE4B5, 0x000000, 1);
 scene.add(light);
 
-
 function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     const localPrefix = isLast ? '└─' : '├─';
     lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
@@ -80,7 +79,7 @@ const material = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: false
 const mesh = new THREE.Mesh(geometry, material);
 // mesh.position.set(-1.2, 0.8, -1.9);
 
-let minecart;
+let car;
 const mixers = [];
 
 const times = [0, 2];
@@ -90,50 +89,49 @@ const values2 = [
 ];
 
 function init() {
-    const minecartMove_KF = new THREE.VectorKeyframeTrack('.position', times, values2);
-    const minecartMove_animation = new THREE.AnimationClip('.position_animation', -1, [minecartMove_KF]);
-    const mixer = new THREE.AnimationMixer(minecart);
-    mixers.push(mixer);
-    const action = mixer.clipAction(minecartMove_animation);
+    // const minecartMove_KF = new THREE.VectorKeyframeTrack('.position', times, values2);
+    // const minecartMove_animation = new THREE.AnimationClip('.position_animation', -1, [minecartMove_KF]);
+    // const mixer = new THREE.AnimationMixer(minecart);
+    // mixers.push(mixer);
+    // const action = mixer.clipAction(minecartMove_animation);
 
-    action.setLoop(THREE.LoopOnce);
-    action.clampWhenFinished = false;
+    // action.setLoop(THREE.LoopOnce);
+    // action.clampWhenFinished = false;
 
-    action.play();
-    mixer.addEventListener('finished', function (e) {
-        const heap = minecart.getObjectByName("heap"); 
-        console.log(heap);
-        minecart.remove(heap);
-    });
+    // action.play();
+    // mixer.addEventListener('finished', function (e) {
+    //     const heap = minecart.getObjectByName("heap"); 
+    //     console.log(heap);
+    //     minecart.remove(heap);
+    // });
 }
 
 const manager = new THREE.LoadingManager();
 manager.onLoad = init;
 const gltfLoader = new GLTFLoader(manager);
 
-gltfLoader.load(`/models/mine/minecart.glb`, (gltf) => {
-    minecart = gltf.scene;
-    minecart.name = 'minecart'
-    console.log("minecart", minecart)
-    // for (const animation_ of gltf.animations) {
-    //     const objectName = animation_.name.split(".")[0];
-    //     const animatedObject = hoist.getObjectByName(objectName)
-    //     const mixer = new THREE.AnimationMixer(animatedObject);
-    //     mixers.push(mixer);
-    //     const action = mixer.clipAction(animation_);
-    //     action.play();
-    // }
-
-    scene.add(minecart);
-    // console.log(dumpObject(hoist).join('\n'));
-});
-gltfLoader.load(`/models/mine/heap2.glb`, (gltf) => {
+gltfLoader.load("models/city/scene.gltf", (gltf) => {
     const root = gltf.scene;
-    root.name = 'heap'
-
-
-    minecart.add(root);
+    scene.add(root);
 });
+
+// gltfLoader.load(`/models/mine/minecart.glb`, (gltf) => {
+//     minecart = gltf.scene;
+//     minecart.name = 'minecart'
+//     console.log("minecart", minecart)
+//     // for (const animation_ of gltf.animations) {
+//     //     const objectName = animation_.name.split(".")[0];
+//     //     const animatedObject = hoist.getObjectByName(objectName)
+//     //     const mixer = new THREE.AnimationMixer(animatedObject);
+//     //     mixers.push(mixer);
+//     //     const action = mixer.clipAction(animation_);
+//     //     action.play();
+//     // }
+
+//     scene.add(minecart);
+//     // console.log(dumpObject(hoist).join('\n'));
+// });
+
 
 
 

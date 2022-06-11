@@ -12,7 +12,7 @@ export default class Money{
         this.valueParagraph.innerText = this.value;
 
         const textParagraph = document.createElement("p");
-        textParagraph.innerText = "Денег";
+        textParagraph.innerText = "₽";
 
         rowDiv.append(this.valueParagraph);
         rowDiv.append(textParagraph);
@@ -22,7 +22,7 @@ export default class Money{
 
     add(value){
         this.value += value;
-        this.showValue();
+        this.changeParagraph();
     }
 
     remove(value){
@@ -30,10 +30,10 @@ export default class Money{
             throw new Error("Недостаточно денег");
         }
         this.value -= value;
-        this.showValue();
+        this.changeParagraph();
     }
 
-    showValue(){
+    changeParagraph(){
         this.valueParagraph.innerText = this.value;
     }
 }

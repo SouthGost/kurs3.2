@@ -8,7 +8,7 @@ export default class MainLocation {
         this.name = "База";
         this.resourceController = resourceController;
         this.htmlController = htmlController;
-        this.resourceImprove = new ResourceImprove(htmlController);
+        // this.resourceImprove = new ResourceImprove(htmlController);
 
         const dirLight = new THREE.DirectionalLight(0xFFFFE0, 0.4);
         dirLight.position.set(0, 100, 40);
@@ -42,14 +42,16 @@ export default class MainLocation {
         this.actions = [];
         gltfLoader.load(`/models/location/MainLocation.glb`, (gltf) => {
             const root = gltf.scene;
-            console.log(gltf)
+            
+            // console.log(gltf)
             this.objects3d.push(root);
         });
     }
 
     visible(renderer, scene, camera, mixers) {
+        this.htmlController.setBackgroundColor("rgba(0, 0, 0, 0.3)");
         const header = document.getElementById("header");
-        header.style.color = "white";
+        // header.style.color = "white";
 
         renderer.setClearColor(0x00FFFF);
         camera.position.set(-150, 80, 15);
