@@ -30,8 +30,8 @@ export default class HTMLController{
         this.message.notify(text);
     }
 
-    openModal(name, HTMLElements, isCanСlose = true){
-        this.modal.open(name, HTMLElements , isCanСlose);
+    openModal(name, elements, isCanСlose = true){
+        this.modal.open(name, elements , isCanСlose);
     }
 
     closeModal(){

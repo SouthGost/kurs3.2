@@ -13,13 +13,13 @@ export default class ResourceController {
         this.resources = resourceArray;
         this.resourcesCount = 0;
         this.maxResourcesCount = 500;
-        this.isLive = true;
+        this.isGame = true;
         this.workers = [
             new Worker(),
             new Worker(),
         ];
         this.workersParagraph = document.createElement("p");
-        this.updateWorkersParagraph();
+        this.refreshWorkersParagraph();
         for (let i = 0; i < this.resources.length; i++) {
             if (this.resources[i].url != null) {
                 gltfLoader.load(`/models/mine/block/${this.resources[i].url}`, (gltf) => {
@@ -29,7 +29,6 @@ export default class ResourceController {
                 this.resources[i].scene = new THREE.Object3D();;
             }
         }
-        // this.startNewMonth();
     }
 
     startNewMonth() {
@@ -42,7 +41,6 @@ export default class ResourceController {
                     monthExpenses += worker.salary;
                 }
                 this.htmlController.notifyMessage(`На зарплаты потраченно ${monthExpenses}`);
-                // throw new Error();
                 this.month++;
                 const monthParagraph = document.getElementById("month");
                 monthParagraph.innerText = this.month;
@@ -59,7 +57,7 @@ export default class ResourceController {
     }
 
     lose() {
-        this.isLive = false;
+        this.isGame = false;
         this.money.remove(this.money.value);
         const loseParagraph = document.createElement("p");
         loseParagraph.innerText = `Ваш результат ${this.month} месяц(ев).`
@@ -73,7 +71,7 @@ export default class ResourceController {
             return false;
         }
     }
-    //кучу
+
     addResource(resource, count) {
         if (this.maxResourcesCount > this.resourcesCount) {
             resource.addCount(count);
@@ -93,7 +91,7 @@ export default class ResourceController {
 
     addWorker(worker) {
         this.workers.push(worker);
-        this.updateWorkersParagraph();
+        this.refreshWorkersParagraph();
     }
 
     removeWorker() {
@@ -107,8 +105,9 @@ export default class ResourceController {
         if (removedWorkerId == -1) {
             throw new Error("Нет свободных рабочих, которых можно уволить");
         }
+        this.removeMoney(this.workers[removedWorkerId].salary * 3);
         const worker = this.workers.splice(removedWorkerId, 1)[0];
-        this.updateWorkersParagraph();
+        this.refreshWorkersParagraph();
         return worker;
     }
 
@@ -144,7 +143,7 @@ export default class ResourceController {
         return count;
     }
 
-    updateWorkersParagraph() {
+    refreshWorkersParagraph() {
         this.workersParagraph.innerText = `${this.workers.length} (${this.getFreeWorkersCount()})`;
     }
 
@@ -198,7 +197,7 @@ export default class ResourceController {
         table.append(headerTr);
 
         for (const resource of this.resources) {
-            resource.countForSaleInput.value = 0;
+            resource.clearCountForSale();
 
             const tr = document.createElement("tr");
 
@@ -217,7 +216,7 @@ export default class ResourceController {
             tdCost.append(costParagraph);
 
             const tdCountForSale = document.createElement("td");
-            tdCountForSale.append(resource.countForSaleInput);//  countForSaleInput  
+            tdCountForSale.append(resource.countForSaleInput);
 
             const tdProfit = document.createElement("td");
             tdProfit.append(resource.profitParagraph);
@@ -230,25 +229,9 @@ export default class ResourceController {
             tr.append(tdProfit);
             table.append(tr);
         }
-        // const saleButton = document.createElement("button");
-        // saleButton.innerText = "Продать ресурсы";
-        // saleButton.onclick = () => {
-        //     try {
-        //         for (const resource of this.resources) {
-        //             if(resource.countForSale != 0){
-        //                 this.removeResource(resource, resource.countForSale);
-        //                 this.addMoney(resource.cost * resource.countForSale);
-        //                 resource.clearCountForSale();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         this.htmlController.notifyMessage(error.message);
-        //     }
-        // }
         elements.push(table);
-        // elements.push(saleButton);
 
-        return table;//elements
+        return table;
     }
 
 

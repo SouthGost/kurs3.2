@@ -1,7 +1,7 @@
 import * as SkeletonUtils from '../../jsm/utils/SkeletonUtils.js';
 import Worker from "./Worker.js"
 
-export default class MinematrixResources {
+export default class MineMatrix {
 
 
     constructor(resourceController, htmlController, level, depth, isOpen, cost = 0) {
@@ -35,9 +35,6 @@ export default class MinematrixResources {
         }
         this.minedResourceI = 0;
         this.minedResourceJ = this.matrixResources[0].length - 1;
-        // if (isOpen) {
-        //     this.work();
-        // }
     }
 
     checkMine() {
@@ -115,19 +112,17 @@ export default class MinematrixResources {
     }
 
     getNextResource() {
-        if (!this.workers.length == 0 && this.resourceController.isLive) {
+        if (!this.workers.length == 0 && this.resourceController.isGame) {
             setTimeout(() => {
                 if (!this.workers.length == 0) {
-                    try{//if(!this.resourceController.isMaxResources())
+                    try{
                         const resource = this.matrixResources[this.minedResourceI][this.minedResourceJ][1];
                         this.resourceController.addResource(resource, 1);
                         if (this.scene != undefined) {
                             this.scene.remove(this.matrixObjects3D[this.minedResourceI][this.minedResourceJ][1]);
                             this.matrixObjects3D[this.minedResourceI][this.minedResourceJ][1] = undefined;
                         }
-                        // resource.addCount(1)
                         this.matrixResources[this.minedResourceI][this.minedResourceJ][1] = undefined;
-                        // console.log(`удалил ${i}${j}`)
                         if (this.minedResourceI < this.matrixResources.length - 1) {
                             this.minedResourceI++;
                             this.getNextResource()
@@ -141,7 +136,7 @@ export default class MinematrixResources {
                                 this.minedResourceJ = this.matrixResources[0].length - 1;
                                 this.moveBlocksForvard();
                                 this.getNextResource();
-                            }, 500 / this.workers.length)//
+                            }, 500 / this.workers.length)
                         }
                     } catch(error) {
 
@@ -151,7 +146,7 @@ export default class MinematrixResources {
                         }, 5000)
                     }
                 }
-            }, 1000 / this.workers.length)
+            }, 5000 / this.workers.length)
         }
     }
 
@@ -170,7 +165,7 @@ export default class MinematrixResources {
             this.work();
         }
         this.workersCountParagraph.innerText = this.workers.length;
-        this.resourceController.updateWorkersParagraph();
+        this.resourceController.refreshWorkersParagraph();
     }
 
     removeWorker() {
@@ -186,7 +181,7 @@ export default class MinematrixResources {
         const worker = this.workers.splice(0, 1);
         worker[0].isFree = true;
         this.workersCountParagraph.innerText = this.workers.length;
-        this.resourceController.updateWorkersParagraph();
+        this.resourceController.refreshWorkersParagraph();
     }
 
     show(scene) {

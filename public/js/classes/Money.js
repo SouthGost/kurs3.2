@@ -22,7 +22,7 @@ export default class Money{
 
     add(value){
         this.value += value;
-        this.changeParagraph();
+        this.refreshValueParagraph();
     }
 
     remove(value){
@@ -30,10 +30,10 @@ export default class Money{
             throw new Error("Недостаточно денег");
         }
         this.value -= value;
-        this.changeParagraph();
+        this.refreshValueParagraph();
     }
 
-    changeParagraph(){
+    refreshValueParagraph(){
         this.valueParagraph.innerText = this.value;
     }
 }

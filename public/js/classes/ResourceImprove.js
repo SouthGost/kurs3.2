@@ -8,13 +8,17 @@ export default class ResourceImprove {
         this.htmlController = htmlController;
         this.queue = [];
         this.permissibleImproves = [
-            new Improve(this, resourceArray[3], resourceArray[4], 10000)
-        ];
-        this.canImprovenow = 3;
+            new Improve(this, resourceArray[3], resourceArray[4], 10000),
+            new Improve(this, resourceArray[5], resourceArray[6], 8000),
+            new Improve(this, resourceArray[8], resourceArray[9], 10000),
+            new Improve(this, resourceArray[10], resourceArray[11], 15000),
+            new Improve(this, resourceArray[13], resourceArray[14], 20000),
+            new Improve(this, resourceArray[15], resourceArray[16], 40000),
 
-        //таблица очереди
+        ];
+        this.canImproveNow = 3;
+
         this.queueDiv = document.createElement("div");
-        // this.queueDiv.className = "slider_table";
 
         const upDiv = document.createElement("div");
         const downDiv = document.createElement("div");
@@ -39,70 +43,12 @@ export default class ResourceImprove {
         downDiv.append(this.improvingNowContainer);
         this.queueDiv.append(upDiv);
         this.queueDiv.append(downDiv);
-
-        //chernovik
-        // for(let i = 0; i < 20; i++){
-        //     this.queueContainer.append(this.permissibleImproves[0].createQueueDiv());
-        // }
-        // for(let i = 0; i < 29; i++){
-        //     this.improvingNowContainer.append(this.permissibleImproves[0].createNowDiv());
-        // }
-
-        //таблица возможных улучшений
-        this.improveTable = document.createElement("table");
-        const hederTr = document.createElement("tr");
-        const hederFromParagraphTD = document.createElement("td");
-        const hederFromParagraph = document.createElement('p');
-
-        hederFromParagraph.innerText = "Из";
-        hederFromParagraphTD.append(hederFromParagraph);
-
-        const hederToParagraphTD = document.createElement("td");
-        const hederToParagraph = document.createElement('p');
-
-        hederToParagraph.innerText = "В";
-        hederToParagraphTD.append(hederToParagraph);
-        hederTr.append(hederFromParagraphTD);
-        hederTr.append(hederToParagraphTD);
-        this.improveTable.append(hederTr);
-
-        for (const permissibleImprove of this.permissibleImproves) {
-            const tr = document.createElement("tr");
-            const improveFromParagraphTD = document.createElement("td");
-            const improveFromParagraph = document.createElement('p');
-
-            improveFromParagraph.innerText = permissibleImprove.fromResource.name;
-            improveFromParagraphTD.append(improveFromParagraph);
-
-            const improveToParagraphTD = document.createElement("td");
-            const improveToParagraph = document.createElement('p');
-
-            improveToParagraph.innerText = permissibleImprove.toResource.name;
-            improveToParagraphTD.append(improveToParagraph);
-
-            const improveButtonTD = document.createElement("td");
-            const improveButton = document.createElement("button");
-
-            improveButton.innerText = "Добавить в очередь";
-            improveButton.onclick = () => {
-                try {
-                    this.resourceController.removeResource(permissibleImprove.fromResource, 1);
-                    this.add(permissibleImprove);
-                } catch (error) {
-                    this.htmlController.notifyMessage(error.message);
-                }
-            };
-            improveButtonTD.append(improveButton);
-            tr.append(improveFromParagraphTD);
-            tr.append(improveToParagraphTD);
-            tr.append(improveButtonTD);
-            this.improveTable.append(tr);
-        }
+        
     }
 
     add(improve) {
-        if (this.canImprovenow > 0) {
-            this.canImprovenow--;
+        if (this.canImproveNow > 0) {
+            this.canImproveNow--;
             const nowDiv = improve.do();
             this.improvingNowContainer.append(nowDiv);
         } else {
@@ -130,7 +76,7 @@ export default class ResourceImprove {
     next(removedDiv) {
         removedDiv.remove();
         if (this.queue.length == 0) {
-            this.canImprovenow++;
+            this.canImproveNow++;
         } else {
             const nextImprove = this.queue.shift();
             nextImprove.div.remove();
@@ -141,18 +87,65 @@ export default class ResourceImprove {
 
     showImproveInfo() {
 
+        const improveTable = document.createElement("table");
+        const hederTr = document.createElement("tr");
+        const hederFromCount = document.createElement("td");
+        const hederFromParagraphTD = document.createElement("td");
+        const hederFromParagraph = document.createElement('p');
 
-        // for(let i = 0; i < this.queue.length; i++) {
-        //     // const nextImproveDiv = document.createElement("div");
+        hederFromParagraph.innerText = "Из";
+        hederFromParagraphTD.append(hederFromParagraph);
 
-        //     // nextImproveDiv.innerText = this.queue[i].toResource.name;
-        //     // this.queueContainer.append(nextImproveDiv);
-        //     this.createImproveInQueueDiv(this.queue[i]);
-        // }
+        const hederToParagraphTD = document.createElement("td");
+        const hederToParagraph = document.createElement('p');
+
+        hederToParagraph.innerText = "В";
+        hederToParagraphTD.append(hederToParagraph);
+        hederTr.append(hederFromCount);
+        hederTr.append(hederFromParagraphTD);
+        hederTr.append(hederToParagraphTD);
+        improveTable.append(hederTr);
+
+        for (const permissibleImprove of this.permissibleImproves) {
+            const tr = document.createElement("tr");
+            const improveFromCountTD = document.createElement("td");
+            improveFromCountTD.append(permissibleImprove.fromResource.countParagraph);
+
+            const improveFromParagraphTD = document.createElement("td");
+            const improveFromParagraph = document.createElement('p');
+
+            improveFromParagraph.innerText = permissibleImprove.fromResource.name;
+            improveFromParagraphTD.append(improveFromParagraph);
+
+            const improveToParagraphTD = document.createElement("td");
+            const improveToParagraph = document.createElement('p');
+
+            improveToParagraph.innerText = permissibleImprove.toResource.name;
+            improveToParagraphTD.append(improveToParagraph);
+
+            const improveButtonTD = document.createElement("td");
+            const improveButton = document.createElement("button");
+
+            improveButton.innerText = "Добавить в очередь";
+            improveButton.onclick = () => {
+                try {
+                    this.resourceController.removeResource(permissibleImprove.fromResource, 1);
+                    this.add(permissibleImprove);
+                } catch (error) {
+                    this.htmlController.notifyMessage(error.message);
+                }
+            };
+            improveButtonTD.append(improveButton);
+            tr.append(improveFromCountTD);
+            tr.append(improveFromParagraphTD);
+            tr.append(improveToParagraphTD);
+            tr.append(improveButtonTD);
+            improveTable.append(tr);
+        }
 
         return [
             this.queueDiv,
-            this.improveTable
+            improveTable
         ];
     }
 }

@@ -41,7 +41,6 @@ export default class Mine {
             const root = gltf.scene;
             root.position.set(2, 0, 6);
             this.miner.add(root);
-            // this.objects3d.push(root);
         });
         gltfLoader.load(`/models/mine/miners_hand.glb`, (gltf) => {
             const root = gltf.scene;
@@ -50,8 +49,8 @@ export default class Mine {
 
             const times = [0, 1];
             const values = [
-                0.1, 0, 0, 0,             //0
-                0.1, 0, 0, 1 * Math.PI/2, //1
+                0.1, 0, 0, 0,         //0
+                0.1, 0, 0, Math.PI/2, //1
             ];
             const handRotationKF = new THREE.QuaternionKeyframeTrack('hand.quaternion', times, values);
             const handRotationAnimation = new THREE.AnimationClip('handm.rotation_animation', -1, [handRotationKF]);
@@ -59,7 +58,6 @@ export default class Mine {
             this.mixers.push(mixer);
             this.handAction = mixer.clipAction(handRotationAnimation);
 
-            // this.objects3d.push(root);
             this.miner.add(root);
             for (const mineMatrix of this.mineMatrixs) {
                 mineMatrix.setHandAction(this.handAction);
@@ -113,7 +111,6 @@ export default class Mine {
     visible(renderer, scene, camera, mixers) {
         this.htmlController.setBackgroundColor("rgba(255, 255, 255, 0.37)");
         const header = document.getElementById("header");
-        // header.style.color = "white";
 
         this.scene = scene;
         renderer.setClearColor(0x000000);
@@ -171,7 +168,6 @@ export default class Mine {
         hireWorkerButton.onclick = () => {
             try {
                 const worker = new Worker();
-                // this.resourceController.removeMoney(worker.cost);
                 this.resourceController.addWorker(worker);
             } catch (error) {
                 this.htmlController.notifyMessage(error.message);
@@ -184,7 +180,6 @@ export default class Mine {
         dismissWorkerButton.onclick = () => {
             try {
                 const worker = this.resourceController.removeWorker();
-                this.resourceController.removeMoney(worker.salary * 3);
             } catch (error) {
                 this.htmlController.notifyMessage(error.message);
             }
@@ -210,7 +205,6 @@ export default class Mine {
         table.append(tableHederTr);
 
         for (let i = 0; i < this.mineMatrixs.length; i++) {
-            //table.append(mineMatrix.showMineInfo());
 
             const tr = document.createElement("tr");
 

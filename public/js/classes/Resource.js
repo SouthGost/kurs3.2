@@ -19,25 +19,29 @@ export default class Resource{
         this.countForSaleInput.setAttribute("type", "number");
         this.countForSaleInput.value = 0;
         this.countForSaleInput.onchange = (event) => {
-            if(event.target.valueAsNumber > this.count || event.target.valueAsNumber < 0){
-                this.countForSaleInput.value = this.countForSale;
+            if(event.target.valueAsNumber > this.count){
+                this.countForSaleInput.value = this.count;
+                this.countForSale = this.count;
+            } else if(event.target.valueAsNumber < 0){
+                this.countForSaleInput.value = 0;
+                this.countForSale = 0;
             } else {
                 this.countForSale = event.target.valueAsNumber;
-                this.refreshthisProfitParagraph();
             }
+            this.refreshProfitParagraph();
         }
         
-        this.refreshthisProfitParagraph();
+        this.refreshProfitParagraph();
     }
 
-    refreshthisProfitParagraph(){
+    refreshProfitParagraph(){
         this.profitParagraph.innerText = this.countForSaleInput.value * this.cost;
     }
 
     clearCountForSale(){
         this.countForSale = 0;
         this.countForSaleInput.value = 0;
-        this.refreshthisProfitParagraph();
+        this.refreshProfitParagraph();
     }
 
     addCount(number){

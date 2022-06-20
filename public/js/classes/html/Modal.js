@@ -8,13 +8,13 @@ export default class Modal {
         this.modalCloseButton.onclick = () => { this.close() }
     }
 
-    open(name, HTMLElements, isCanСlose){
+    open(name, elements, isCanСlose){
         this.modalCloseButton.style.visibility = isCanСlose ? "visible" : "hidden"; 
         this.modal.style.zIndex = isCanСlose ? 1 : 3; 
         this.modalContent.innerHTML = "";
         this.modal.style.visibility = "visible";
         this.modalName.innerText = name;
-        for (const element of HTMLElements) {
+        for (const element of elements) {
             this.modalContent.append(element);
         }
     }

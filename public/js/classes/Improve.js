@@ -11,6 +11,7 @@ export default class Improve {
 
     do() {
         const div = document.createElement("div");
+        div.className = "queue_elem";
         const nameParagraph = document.createElement("p");
         const onFinish = () => {
             try {
@@ -34,6 +35,7 @@ export default class Improve {
 
     createQueueDiv(cancelFunc) {
         const div = document.createElement("div");
+        div.className = "queue_elem";
         const paragraph = document.createElement("p");
         const button = document.createElement("button");
 
@@ -44,19 +46,4 @@ export default class Improve {
         div.append(button);
         return div;
     }
-
-    // createNowDiv(){
-    //     const improvingNowTd = document.createElement("div");
-    //     const div = document.createElement("div");
-    //     const nameParagraph = document.createElement("p");
-    //     const timeParagraph = document.createElement("p");
-    //     timeParagraph.className = "time_left";
-
-    //     nameParagraph.innerText = this.toResource.name;
-    //     timeParagraph.innerText = "00:" + this.time / 1000;
-    //     div.append(nameParagraph);
-    //     div.append(timeParagraph);
-    //     improvingNowTd.append(div);
-    //     return improvingNowTd;
-    // }
 }

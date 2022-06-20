@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
 import Mine from "./Mine.js";
-import MainLocation from './MainLocation.js';
-import TradeLocation from "./TradeLocation.js";
+import FactoryLocation from "./FactoryLocation.js";
 import HTMLController from './html/HTMLController.js';
 import ResourceController from "./ResourceController.js";
 import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
@@ -60,13 +59,12 @@ export default class Space {
         this.renderer.shadowMap.enabled = true;
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(90, this.width / this.height, 1, 1000)
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.clock = new THREE.Clock();
         this.delta;
         this.mixers = [];
         
         const init = () => {
-            console.log("init space");
             this.show();
             this.visibleLocation(1);
             const locationButtons = [];
@@ -113,26 +111,19 @@ export default class Space {
                 this.htmlController.openModal("Локация фабрика",[text2Paragraph, start2Button], false);
             }
 
-            //this.htmlController.openModal("Симулятор руководителя шахтой",[text1Paragraph, start1Button], false);
-            this.resourceController.startNewMonth() // убрать
+            this.htmlController.openModal("Симулятор руководителя шахтой",[text1Paragraph, start1Button], false);
 
-
-
-
-
-            // this.locations[0].work();
         }
 
-        this.manager = new THREE.LoadingManager();
-        this.manager.onLoad = init;
+        const manager = new THREE.LoadingManager();
+        manager.onLoad = init;
 
-        this.gltfLoader = new GLTFLoader(this.manager);
+        const gltfLoader = new GLTFLoader(manager);
         this.htmlController = new HTMLController();
-        this.resourceController = new ResourceController(this.gltfLoader, this.htmlController);
+        this.resourceController = new ResourceController(gltfLoader, this.htmlController);
         this.locations = [
-            new Mine(this.gltfLoader, this.resourceController, this.htmlController),
-            // new MainLocation(this.gltfLoader, this.resourceController, this.htmlController),
-            new TradeLocation(this.gltfLoader, this.resourceController, this.htmlController),
+            new Mine(gltfLoader, this.resourceController, this.htmlController),
+            new FactoryLocation(gltfLoader, this.resourceController, this.htmlController),
         ];
 
         window.addEventListener('resize', this.resize);
